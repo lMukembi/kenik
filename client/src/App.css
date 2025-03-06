@@ -1,0 +1,39 @@
+.header {
+  background-color: #22c55e;
+  color: white;
+  padding: 1px 0px;
+  text-align: center;
+  font-weight: bold;
+  font-weight: 10px;
+}
+
+.hr {
+  border-top: 1px;
+  width: 98%;
+}
+
+#headerhr {
+  margin: 5px auto;
+}
+
+#footerhr {
+  margin: 10px auto;
+}
+
+.footer {
+  color: #d9e7e2;
+  opacity: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-bottom: 10px;
+}
+
+/* DESKTOP */
+
+@media only screen and (min-width: 768px) {
+  .header {
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+  }
+}

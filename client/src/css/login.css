@@ -1,0 +1,87 @@
+.loginwrapper {
+  width: 90%;
+  margin: 40px auto;
+  background-color: white;
+  border-radius: 5px;
+  text-align: center;
+}
+
+.loginwrapper .header {
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+}
+
+.loginwrapper h2,
+.logininfo {
+  text-align: center;
+}
+
+.logininfo {
+  margin-bottom: 10px;
+}
+
+.login {
+  display: flex;
+  flex-direction: column;
+  margin: 2rem 0 0 0;
+}
+
+.login input {
+  color: black;
+  font-family: system-ui, Segoe UI, sans-serif, color-emoji;
+  font-style: normal;
+}
+
+#password {
+  width: 100%;
+}
+
+.login input,
+.login button {
+  margin: 0px 10px 2rem 10px;
+  padding: 1rem 5px;
+  border-radius: 10px;
+  border: 1px solid #d9e7e2;
+  outline: none;
+}
+
+.login .passwordcontainer {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.login button {
+  border: none;
+  background-color: #dd2334;
+  font-weight: bold;
+  font-size: 15px;
+  color: white;
+  cursor: pointer;
+}
+
+.login .link {
+  color: green;
+  text-decoration: none;
+  margin-left: 1px;
+}
+
+.login .passwordcontainer i {
+  cursor: pointer;
+  position: absolute;
+  right: 9%;
+  top: 34%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  font-size: 1.2rem;
+  color: green;
+  z-index: 2;
+}
+
+/* DESKTOP */
+
+@media only screen and (min-width: 768px) {
+  .loginwrapper {
+    width: 35%;
+  }
+}
