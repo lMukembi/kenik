@@ -15,7 +15,7 @@ const corsOptions = {
     "https://teslacarsonly.com",
     "https://www.teslacarsonly.com",
     "https://demo.teslacarsonly.com",
-    // "http://192.168.1.100",
+    "http://192.168.1.100",
     // "http://localhost:3000",
   ],
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
