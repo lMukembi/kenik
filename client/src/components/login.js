@@ -7,8 +7,8 @@ import { Home } from "./home";
 import "../css/login.css";
 import axios from "axios";
 
-const goldwinAPI = "https://wifiisp.infy.uk";
-// const goldwinAPI = "https://wifiisp.infy.uk";
+const goldwinAPI = "https://demo.teslacarsonly.com";
+// const goldwinAPI = "http://localhost:8000";
 
 export const Login = () => {
   const userData = JSON.parse(localStorage.getItem("JSUD"));

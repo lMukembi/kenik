@@ -2,24 +2,27 @@ const mongoose = require("mongoose");
 
 const resellerSchema = new mongoose.Schema(
   {
+    resellerID: {
+      type: String,
+    },
+
+    ip: {
+      type: String,
+    },
+
     password: {
       type: String,
       required: true,
-      minLength: 4,
     },
 
     username: {
       type: String,
       required: true,
-      minLength: 3,
-      maxLength: 15,
-      unique: true,
     },
 
-    email: {
+    brand: {
       type: String,
       required: true,
-      unique: true,
     },
 
     phone: {

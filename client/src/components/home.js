@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
+import { IoCallOutline, IoLogoWhatsapp, IoMailOutline } from "react-icons/io5";
 import { redirect, useNavigate } from "react-router-dom";
 import { toast, Bounce } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -6,7 +7,7 @@ import "../css/home.css";
 import axios from "axios";
 // import { IoIosCloseCircle, IoMdCheckmarkCircle } from "react-icons/io";
 
-const goldwinAPI = "https://wifiisp.infy.uk";
+const goldwinAPI = "https://demo.teslacarsonly.com";
 // const goldwinAPI = "http://localhost:8000";
 const routerIP = "http://192.168.1.100";
 
@@ -29,7 +30,7 @@ export const Home = () => {
   // const validField = <IoMdCheckmarkCircle />;
   // const invalidField = <IoIosCloseCircle />;
 
-  const pricePerDay = 20;
+  const pricePerDay = 24;
   const hoursPerDay = 24;
 
   const currentDateTime = new Date().toLocaleString();
@@ -162,6 +163,7 @@ export const Home = () => {
         phone: userInfo.phone,
         duration: totalHours,
         transID: transactionCode,
+        hours: time,
       });
 
       setAmount("");
@@ -311,7 +313,7 @@ export const Home = () => {
             name="phone"
             required
             autoComplete="new-phone"
-            placeholder="Enter M-Pesa No., e.g (07|01)12xxxxx78"
+            placeholder="Enter M-Pesa number, e.g (07|01)12xxxxx21"
             onChange={(e) => setPhone(e.target.value.replace(/\s/g, ""))}
             value={phone}
             onFocus={() => {
@@ -342,10 +344,15 @@ export const Home = () => {
           target="_blank"
           rel="noopener noreferrer"
         >
-          Chat on WhatsApp
+          <IoLogoWhatsapp />
         </a>
 
-        <a href="tel:+254725540469">Call Now</a>
+        <a href="tel:+254725540469">
+          <IoCallOutline />
+        </a>
+        <a href="mailto:kenikwifi@gmail.com">
+          <IoMailOutline />
+        </a>
       </div>
 
       <hr className="hr" id="footerhr" />

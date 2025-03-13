@@ -4,6 +4,7 @@ const jwt = require("jsonwebtoken");
 const mongoose = require("mongoose");
 const Package = require("../models/package");
 const Admin = require("../models/admin");
+const { exec } = require("child_process");
 
 exports.signup = async (req, res) => {
   const { password, phone } = req.body;
@@ -40,52 +41,6 @@ exports.signup = async (req, res) => {
     });
   } catch (error) {
     console.log(error.message);
-  }
-};
-
-exports.passwordCheck = async (req, res) => {
-  const { phone, password } = req.body;
-
-  const currentPasswordCheck = await User.findOne({ phone });
-
-  if (!currentPasswordCheck) {
-    return res.status(400).json({
-      message: "The phone number is not registered.",
-    });
-  }
-
-  const passwordMatch = await bcrypt.compare(
-    password,
-    currentPasswordCheck.password
-  );
-
-  if (passwordMatch) {
-    return res.status(200).json({
-      status: true,
-      message: "Password check success.",
-    });
-  } else {
-    return res
-      .status(204)
-      .json({ status: false, message: "Password check failed." });
-  }
-};
-
-exports.phoneCheck = async (req, res) => {
-  const { phone } = req.body;
-  const user = await User.findOne({ phone });
-
-  if (user) {
-    return res.status(200).json({
-      status: true,
-      data: user,
-      message: "Phone number is taken.",
-    });
-  } else {
-    return res.status(204).json({
-      status: false,
-      message: "Phone number available.",
-    });
   }
 };
 
@@ -164,6 +119,93 @@ exports.resetPassword = async (req, res) => {
     });
   } catch (error) {
     console.log(error.message);
+  }
+};
+
+exports.storeMAC = async (req, res) => {
+  const { macs } = req.body;
+  if (!macs) {
+    return res.status(400).json({ error: "MACs required." });
+  }
+
+  const MACs = macs.split("\n");
+
+  try {
+    for (let mac of MACs) {
+      await Package.updateOne(
+        { mac_address: mac },
+        { $set: { status: "pending" } },
+        { upsert: true }
+      );
+    }
+
+    return res.json({ message: "MAC stored successfully." });
+  } catch (err) {
+    console.error(err.message);
+  }
+};
+
+exports.passwordCheck = async (req, res) => {
+  const { phone, password } = req.body;
+
+  const currentPasswordCheck = await User.findOne({ phone });
+
+  if (!currentPasswordCheck) {
+    return res.status(400).json({
+      message: "The phone number is not registered.",
+    });
+  }
+
+  const passwordMatch = await bcrypt.compare(
+    password,
+    currentPasswordCheck.password
+  );
+
+  if (passwordMatch) {
+    return res.status(200).json({
+      status: true,
+      message: "Password check success.",
+    });
+  } else {
+    return res
+      .status(204)
+      .json({ status: false, message: "Password check failed." });
+  }
+};
+
+exports.phoneCheck = async (req, res) => {
+  const { phone } = req.body;
+  const user = await User.findOne({ phone });
+
+  if (user) {
+    return res.status(200).json({
+      status: true,
+      data: user,
+      message: "Phone number is taken.",
+    });
+  } else {
+    return res.status(204).json({
+      status: false,
+      message: "Phone number available.",
+    });
+  }
+};
+
+exports.ipCheck = async (req, res) => {
+  const { ip } = req.body;
+  const user = await User.findOne({ ip });
+
+  if (user) {
+    return res.status(200).json({
+      status: true,
+      data: user,
+      message: "IP is taken.",
+    });
+  } else {
+    return res.status(204).json({
+      status: false,
+      message: "IP available.",
+    });
   }
 };
 
@@ -271,10 +313,10 @@ exports.subscribe = async (req, res) => {
 };
 
 exports.getPackageExpireAt = async (req, res) => {
-  const { id } = req.params;
+  const { ip } = req.params;
 
   try {
-    const packageExpireAt = await Package.findOne({ userID: id });
+    const packageExpireAt = await Package.findOne({ ip: ip });
 
     return res.status(200).json(packageExpireAt);
   } catch (error) {

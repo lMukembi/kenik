@@ -8,8 +8,8 @@ import { Home } from "./home";
 import axios from "axios";
 import { MdVisibility, MdVisibilityOff } from "react-icons/md";
 
-const goldwinAPI = "https://wifiisp.infy.uk";
-// const goldwinAPI = "https://wifiisp.infy.uk";
+const goldwinAPI = "https://demo.teslacarsonly.com";
+// const goldwinAPI = "http://localhost:8000";
 
 export const Reseller = () => {
   const userData = JSON.parse(localStorage.getItem("JSUD"));
@@ -234,7 +234,7 @@ export const Reseller = () => {
               name="phone"
               required
               autoComplete="new-phone"
-              placeholder="Enter M-Pesa No., e.g (07|01)12xxxxx78"
+              placeholder="Enter M-Pesa number, e.g (07|01)12xxxxx21"
               onChange={(e) => setPhone(e.target.value.replace(/\s/g, ""))}
               value={phone}
               onFocus={() => {

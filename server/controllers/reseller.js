@@ -247,3 +247,105 @@ exports.settings = async (req, res) => {
     console.log(error.message);
   }
 };
+
+exports.tendaMACs = async (req, res) => {
+  let { ip, username, password } = req.body;
+
+  try {
+    const session = await axios.post(`http://${ip}/login.cgi`, {
+      username,
+      password,
+    });
+
+    if (session.status === 200) {
+      const res = await axios.get(`http://${ip}/goform/getArpList`, {
+        headers: { Cookie: session.headers["set-cookie"] },
+      });
+
+      return res.data;
+    }
+  } catch (error) {
+    console.error(error.message);
+    return [];
+  }
+};
+
+exports.tplinkMACs = async (req, res) => {
+  let { ip, username, password } = req.body;
+
+  try {
+    const res = await axios.get(`http://${ip}/userRpm/ArpListRpm.htm`, {
+      auth: { username, password },
+    });
+
+    return res.data;
+  } catch (error) {
+    console.error(error.message);
+    return [];
+  }
+};
+
+exports.getMACs = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const reseller = await Reseller.findOne({ id });
+
+    if (!reseller) {
+      return res.status(404).json({ error: "Reseller not found." });
+    }
+
+    let macs = [];
+    if (reseller.brand === "Tenda") {
+      macs = await getTendaMACs(
+        reseller.ip,
+        reseller.username,
+        reseller.password
+      );
+    } else if (reseller.brand === "TP-Link") {
+      macs = await getTpLinkMACs(
+        reseller.ip,
+        reseller.username,
+        reseller.password
+      );
+    }
+
+    if (!macs.length) {
+      return res.status(400).json({ error: "No MAC addresses found." });
+    }
+
+    // const res = await axios.post("https://vps.kenikwifi.com/api/storeMACs", { id, mac_addresses: macs });
+    const res = await axios.post(
+      "https://isp.teslacarsonly.com/api/storeMACs",
+      { id, mac_addresses: macs }
+    );
+
+    res.json({ data: res.data });
+  } catch (error) {
+    console.error(error.message);
+  }
+};
+
+exports.getCredentials = async (req, res) => {
+  const { mac_address } = req.query;
+  try {
+    if (!mac_address) {
+      return res.status(400).json({ error: "MAC address is required." });
+    }
+
+    const reseller = await Reseller.findOne({ router_mac: mac_address });
+
+    if (!reseller) {
+      return res.status(404).json({ error: "Reseller not found." });
+    }
+
+    res.json({
+      resellerID: reseller.resellerID,
+      ip: reseller.ip,
+      username: reseller.username,
+      password: reseller.password,
+      brand: reseller.brand,
+    });
+  } catch (error) {
+    console.error(error.message);
+  }
+};

@@ -3,17 +3,22 @@ const mongoose = require("mongoose");
 const packageSchema = new mongoose.Schema({
   userID: {
     type: String,
-    required: true,
+  },
+
+  mac_address: {
+    type: String,
   },
 
   ip: {
     type: String,
-    required: true,
   },
 
   expireAt: {
     type: Date,
-    required: true,
+  },
+
+  status: {
+    type: String,
   },
 });
 

@@ -75,13 +75,13 @@
 
 .contacts {
   text-align: center;
-  margin: -1rem auto 1rem auto;
+  margin: 0px auto 0px auto;
 }
 
 .contacts a {
-  color: #0000004d;
+  color: #d9e7e2;
   text-decoration: none;
-  padding: 0px 10px;
+  padding: 0px 15px;
 }
 
 .messages {

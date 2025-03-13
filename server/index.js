@@ -12,9 +12,9 @@ const MONGO_URI = "mongodb://kenik:1919@127.0.0.1:27017/kenikwifi";
 
 const corsOptions = {
   origin: [
-    "https://wifiisp.infy.uk",
-    "https://www.wifiisp.infy.uk",
-    // "https://api.goldwinadverts.com",
+    "https://teslacarsonly.com",
+    "https://www.teslacarsonly.com",
+    "https://demo.teslacarsonly.com",
     // "http://192.168.1.100",
     // "http://localhost:3000",
   ],
