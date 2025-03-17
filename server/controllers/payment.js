@@ -15,7 +15,7 @@ exports.sendstk = async (req, res) => {
   };
 
   try {
-    const platformFee = (2 / 100) * amount;
+    const platformFee = (3 / 100) * amount;
     const resellerAmount = amount - platformFee;
 
     const resData = await axios.post("https://dns1.boogiecoin.org", data, {
