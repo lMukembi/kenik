@@ -44,7 +44,7 @@ app.use("/api/payment", require("./routes/payment"));
 
 app.get("*", (req, res) => {
   if (req.originalUrl.startsWith("/api/")) {
-      return res.status(404).json(error.message);
+      return res.status(404).json({ error: "API endpoint missing." });
   }
   res.sendFile(path.join(__dirname, "client/build", "index.html"));
 });
