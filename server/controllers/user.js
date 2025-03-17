@@ -191,23 +191,23 @@ exports.phoneCheck = async (req, res) => {
   }
 };
 
-exports.ipCheck = async (req, res) => {
-  const { ip } = req.body;
-  const user = await User.findOne({ ip });
+// exports.ipCheck = async (req, res) => {
+//   const { ip } = req.body;
+//   const user = await User.findOne({ ip });
 
-  if (user) {
-    return res.status(200).json({
-      status: true,
-      data: user,
-      message: "IP is taken.",
-    });
-  } else {
-    return res.status(204).json({
-      status: false,
-      message: "IP available.",
-    });
-  }
-};
+//   if (user) {
+//     return res.status(200).json({
+//       status: true,
+//       data: user,
+//       message: "IP is taken.",
+//     });
+//   } else {
+//     return res.status(204).json({
+//       status: false,
+//       message: "IP available.",
+//     });
+//   }
+// };
 
 exports.getUser = async (req, res) => {
   try {
