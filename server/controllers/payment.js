@@ -1,8 +1,8 @@
-const express = require("express");
 const Payment = require("../models/payment");
 const User = require("../models/user");
 const Reseller = require("../models/reseller");
 const Package = require("../models/package");
+const axios = require("axios");
 
 exports.sendstk = async (req, res) => {
   const { ip, amount, phone, duration, transID, hours } = req.body;
