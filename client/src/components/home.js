@@ -9,7 +9,7 @@ import axios from "axios";
 
 const goldwinAPI = "https://demo.teslacarsonly.com";
 // const goldwinAPI = "http://localhost:8000";
-const routerIP = "http://192.168.1.100";
+const routerIP = "https://192.168.1.100";
 
 export const Home = () => {
   // const userData = JSON.parse(localStorage.getItem("JSUD"));
@@ -157,7 +157,7 @@ export const Home = () => {
     setLoading(true);
 
     try {
-      const res = await axios.post(`${routerIP}/api/payment/deposit`, {
+      const res = await axios.post(`${goldwinAPI}/api/payment/deposit`, {
         ip: userIP,
         amount,
         phone: userInfo.phone,
