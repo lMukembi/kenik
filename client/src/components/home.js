@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { IoCallOutline, IoLogoWhatsapp, IoMailOutline } from "react-icons/io5";
-import { redirect, useNavigate } from "react-router-dom";
+import {  useNavigate } from "react-router-dom";
 import { toast, Bounce } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "../css/home.css";
@@ -9,12 +9,12 @@ import axios from "axios";
 
 const goldwinAPI = "https://demo.teslacarsonly.com";
 // const goldwinAPI = "http://localhost:8000";
-const routerIP = "https://192.168.1.100";
+// const routerIP = "https://192.168.1.100";
 
 export const Home = () => {
   // const userData = JSON.parse(localStorage.getItem("JSUD"));
 
-  const [userInfo, setUserInfo] = useState({});
+  // const [userInfo, setUserInfo] = useState({});
   const [phone, setPhone] = useState("");
   const [amount, setAmount] = useState("");
   const [loading, setLoading] = useState(false);
@@ -160,7 +160,7 @@ export const Home = () => {
       const res = await axios.post(`${goldwinAPI}/api/payment/deposit`, {
         ip: userIP,
         amount,
-        phone: userInfo.phone,
+        phone,
         duration: totalHours,
         transID: transactionCode,
         hours: time,
@@ -208,28 +208,28 @@ export const Home = () => {
     }
   };
 
-  useEffect(() => {
-    const getUserData = async () => {
-      try {
-        const userInfoData = JSON.parse(localStorage.getItem("JSUD"));
-        if (!userInfoData) {
-          return redirect("/login");
-        }
-        const userID = userInfoData.SESSID;
+  // useEffect(() => {
+  //   const getUserData = async () => {
+  //     try {
+  //       const userInfoData = JSON.parse(localStorage.getItem("JSUD"));
+  //       if (!userInfoData) {
+  //         return redirect("/login");
+  //       }
+  //       const userID = userInfoData.SESSID;
 
-        const res = await axios.get(
-          `${goldwinAPI}/api/user/${userID}/user-data`
-        );
-        if (res) {
-          setUserInfo(res.data);
-        }
-      } catch (err) {
-        console.log(err.message);
-      }
-    };
+  //       const res = await axios.get(
+  //         `${goldwinAPI}/api/user/${userID}/user-data`
+  //       );
+  //       if (res) {
+  //         setUserInfo(res.data);
+  //       }
+  //     } catch (err) {
+  //       console.log(err.message);
+  //     }
+  //   };
 
-    getUserData();
-  }, []);
+  //   getUserData();
+  // }, []);
 
   // useEffect(() => {
   //   const getMessages = async () => {

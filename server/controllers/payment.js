@@ -7,11 +7,11 @@ const Package = require("../models/package");
 exports.sendstk = async (req, res) => {
   const { ip, amount, phone, duration, transID, hours } = req.body;
 
-  const Phone = `0${phone.substring(3)}`;
+  // const Phone = `0${phone.substring(3)}`;
 
   const data = {
     amount,
-    phone: Phone,
+    phone,
   };
 
   try {
