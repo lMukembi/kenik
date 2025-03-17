@@ -87,6 +87,24 @@ exports.phoneCheck = async (req, res) => {
   }
 };
 
+exports.ipCheck = async (req, res) => {
+  const { ip } = req.body;
+  const reseller = await Reseller.findOne({ ip });
+
+  if (reseller) {
+    return res.status(200).json({
+      status: true,
+      data: reseller,
+      message: "IP is taken.",
+    });
+  } else {
+    return res.status(204).json({
+      status: false,
+      message: "IP available.",
+    });
+  }
+};
+
 exports.login = async (req, res) => {
   const { phone, password } = req.body;
 

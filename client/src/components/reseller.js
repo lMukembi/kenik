@@ -52,7 +52,7 @@ export const Reseller = () => {
     try {
       const Phone = `254${phone.substring(1)}`;
 
-      const res = await axios.post(`${goldwinAPI}/api/user/check-phone`, {
+      const res = await axios.post(`${goldwinAPI}/api/reseller/check-phone`, {
         phone: Phone,
       });
 
@@ -66,7 +66,7 @@ export const Reseller = () => {
     if (!ip) return;
 
     try {
-      const res = await axios.post(`${goldwinAPI}/api/user/check-ip`, {
+      const res = await axios.post(`${goldwinAPI}/api/reseller/check-ip`, {
         ip,
       });
 
@@ -89,7 +89,7 @@ export const Reseller = () => {
 
     try {
       const res = await axios.post(
-        `${goldwinAPI}/api/user/signup`,
+        `${goldwinAPI}/api/reseller/signup`,
         {
           phone: `254${phone.substring(1)}`,
           password,
@@ -106,7 +106,7 @@ export const Reseller = () => {
           })
         );
         toast.success(
-          `Welcome ${res.data.result.username}, Your account created successfully.`,
+          `Welcome ${res.data.result.username}, Account created successfully.`,
           {
             position: "top-right",
             autoClose: 4000,

@@ -10,6 +10,7 @@ const {
   getReseller,
   getMACs,
   getCredentials,
+  ipCheck,
 } = require("../controllers/reseller");
 
 router.route("/signup").post(signup);
@@ -18,6 +19,7 @@ router.route("/reset-password").post(forgotPassword);
 router.route("/:id/user-data").get(getReseller);
 router.route("/check-password/:id").post(passwordCheck);
 router.route("/check-phone").post(phoneCheck);
+router.route("/check-ip").post(ipCheck);
 router.route("/macs/:id").get(getMACs);
 router.route("/credentials/:id").get(getCredentials);
 
