@@ -51,7 +51,7 @@
   flex-direction: row;
   font-size: 12px;
   display: flex;
-  margin-left: 10px;
+  margin: -2rem auto 2rem 10px;
 }
 
 .reseller .checkstatus small .icon {

@@ -47,6 +47,24 @@ exports.signup = async (req, res) => {
   }
 };
 
+exports.usernameCheck = async (req, res) => {
+  const { username } = req.body;
+  const reseller = await Reseller.findOne({ username });
+
+  if (reseller) {
+    return res.status(200).json({
+      status: true,
+      data: reseller,
+      message: "Username is taken.",
+    });
+  } else {
+    return res.status(204).json({
+      status: false,
+      message: "Username available.",
+    });
+  }
+};
+
 exports.passwordCheck = async (req, res) => {
   const { phone, password } = req.body;
 
