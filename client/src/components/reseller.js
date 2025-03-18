@@ -18,14 +18,18 @@ export const Reseller = () => {
 
   const [phone, setPhone] = useState("");
   const [ip, setIP] = useState("");
+  const [username, setUsername] = useState("");
+  const [brand, setBrand] = useState("");
   const [password, setPassword] = useState("");
   const [successfulSignup, setSuccessfulSignup] = useState(false);
   const [phoneValidation, setPhoneValidation] = useState(false);
   const [ipValidation, setIPValidation] = useState(false);
+  const [usernameValidation, setUsernameValidation] = useState(false);
   const [passwordLength, setPasswordLength] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
   const [validPhone, setValidPhone] = useState(false);
   const [validIP, setValidIP] = useState(false);
+  const [validUsername, setValidUsername] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
   const isValidPhone = (number) => /^(?:07\d{8}|01\d{8})$/.test(number);
@@ -75,6 +79,20 @@ export const Reseller = () => {
       console.log(error.message);
     }
   }, [ip]);
+
+  const checkUsername = useCallback(async () => {
+    if (!username) return;
+
+    try {
+      const res = await axios.post(`${goldwinAPI}/api/reseller/check-username`, {
+        username,
+      });
+
+      setUsernameValidation(res.data ? false : true);
+    } catch (error) {
+      console.log(error.message);
+    }
+  }, [username]);
 
   const Signup = async (e) => {
     e.preventDefault();
@@ -144,13 +162,29 @@ export const Reseller = () => {
     !phone ||
     phone.length !== 10 ||
     !validPhone ||
+    !username ||
+    !validUsername ||
     !password ||
     !ip ||
     !validIP ||
     password.length < 4 ||
     phoneValidation === false ||
+    usernameValidation === false ||
     ipValidation === false ||
     !isFocused;
+
+    useEffect(() => {
+
+      setValidUsername(username);
+  
+      const delayDebounce = setTimeout(() => {
+        if ((username)) {
+          checkUsername();
+        }
+      }, 500);
+  
+      return () => clearTimeout(delayDebounce);
+    }, [username, checkUsername]);
 
   useEffect(() => {
     setValidPhone(isValidPhone(phone));
@@ -203,32 +237,34 @@ export const Reseller = () => {
           <hr className="hr" />
 
           <form onSubmit={Signup} className="reseller">
-            <input
+
+          <input
               type="text"
-              name="ip"
+              name="username"
               required
-              autoComplete="new-ip"
-              placeholder="Enter router IP address"
-              onChange={(e) => setIP(e.target.value.replace(/\s/g, ""))}
-              value={ip}
+              autoComplete="new-username"
+              placeholder="Enter username"
+              onChange={(e) => setUsername(e.target.value.replace(/\s/g, ""))}
+              value={username}
               onFocus={() => {
                 setIsFocused(true);
-                checkIP();
+                checkUsername();
               }}
             />
 
-            {validIP && (
+            {validUsername && (
               <span className="checkstatus">
-                {ipValidation ? (
+                {usernameValidation ? (
                   <small className="available">
-                    {validField} IP available.
+                    {validField} Username available.
                   </small>
                 ) : (
-                  <small className="taken">{invalidField} IP taken.</small>
+                  <small className="taken">{invalidField} Username taken.</small>
                 )}
               </span>
             )}
 
+            
             <input
               type="tel"
               maxLength={10}
@@ -255,6 +291,46 @@ export const Reseller = () => {
                 )}
               </span>
             )}
+
+            <input
+              type="text"
+              name="brand"
+              required
+              autoComplete="new-brand"
+              placeholder="Enter router name"
+              onChange={(e) => setBrand(e.target.value.replace(/\s/g, ""))}
+              value={brand}
+              onFocus={() => {
+                setIsFocused(true);
+              }}
+            />
+
+            <input
+              type="text"
+              name="ip"
+              required
+              autoComplete="new-ip"
+              placeholder="Enter router IP address"
+              onChange={(e) => setIP(e.target.value.replace(/\s/g, ""))}
+              value={ip}
+              onFocus={() => {
+                setIsFocused(true);
+                checkIP();
+              }}
+            />
+
+            {validIP && (
+              <span className="checkstatus">
+                {ipValidation ? (
+                  <small className="available">
+                    {validField} IP available.
+                  </small>
+                ) : (
+                  <small className="taken">{invalidField} IP taken.</small>
+                )}
+              </span>
+            )}
+
 
             <div className="passwordcontainer">
               <input

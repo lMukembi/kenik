@@ -2,12 +2,10 @@ const mongoose = require("mongoose");
 
 const resellerSchema = new mongoose.Schema(
   {
-    resellerID: {
-      type: String,
-    },
-
     ip: {
       type: String,
+      required:true,
+      unique:true,
     },
 
     password: {
@@ -18,6 +16,7 @@ const resellerSchema = new mongoose.Schema(
     username: {
       type: String,
       required: true,
+      unique:true
     },
 
     brand: {

@@ -13,7 +13,8 @@ VPS_API_URL="http://$(curl -s ifconfig.me):8000/api/reseller"
 # Function to fetch reseller details from MongoDB
 get_reseller_credentials() {
     local reseller_data
-    reseller_data=$(mongo "$MONGO_URI" --quiet --eval 'printjson(db.'"$COLLECTION"'.findOne({ active: true }, { _id: 0, ip: 1, username: 1, password: 1, brand: 1, resellerID: 1 }))')
+    reseller_data=$(mongo "$MONGO_URI" --quiet --eval \
+    'printjson(db.'"$COLLECTION"'.findOne({ active: true }, { _id: 1, ip: 1, username: 1, password: 1, brand: 1 }))')
 
     ROUTER_IP=$(echo "$reseller_data" | grep -oP '(?<="ip" : ")[^"]*')
     USERNAME=$(echo "$reseller_data" | grep -oP '(?<="username" : ")[^"]*')
