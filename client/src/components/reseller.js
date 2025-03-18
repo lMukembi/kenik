@@ -109,9 +109,11 @@ export const Reseller = () => {
       const res = await axios.post(
         `${goldwinAPI}/api/reseller/signup`,
         {
-          ip,
+          username,
           phone: `254${phone.substring(1)}`,
+          brand,
           password,
+          ip,
         },
         config
       );

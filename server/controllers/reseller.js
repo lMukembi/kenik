@@ -4,7 +4,7 @@ const mongoose = require("mongoose");
 const Reseller = require("../models/reseller");
 
 exports.signup = async (req, res) => {
-  const { ip,password, phone } = req.body;
+  const { username, brand, ip, password, phone } = req.body;
 
   const JWT_SECRET =
     "S3bwFeWy4VRrFDQ3r0vDircfvsAH3k7AIwg4DVCm8VhTfI/w8YHF3M0ZG+gCkbWwS1xYj1bVl8liAuETKkElGg==";
@@ -13,17 +13,24 @@ exports.signup = async (req, res) => {
     const salt = bcrypt.genSaltSync(10);
     const hash = bcrypt.hashSync(password, salt);
 
+    const existingUsername = await Reseller.findOne({ username });
+    if (existingUsername) {
+      return res.status(400).json({ message: "Username taken!" });
+    }
+
     const existingIP = await Reseller.findOne({ ip });
     if (existingIP) {
-      return res.status(400).json({ error: "IP taken!" });
+      return res.status(400).json({ message: "IP taken!" });
     }
 
     const existingPhone = await Reseller.findOne({ phone });
     if (existingPhone) {
-      return res.status(400).json({ error: "Phone taken!" });
+      return res.status(400).json({ message: "Phone taken!" });
     }
 
     const newReseller = await Reseller.create({
+      username,
+      brand,
       ip,
       phone,
       password: hash,
