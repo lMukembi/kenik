@@ -54,6 +54,40 @@ exports.signup = async (req, res) => {
   }
 };
 
+exports.login = async (req, res) => {
+  const { phone, password } = req.body;
+
+  const JWT_SECRET =
+    "S3bwFeWy4VRrFDQ3r0vDircfvsAH3k7AIwg4DVCm8VhTfI/w8YHF3M0ZG+gCkbWwS1xYj1bVl8liAuETKkElGg==";
+
+  try {
+    const reseller = await Reseller.findOne({ phone });
+
+    if (!reseller) {
+      return res.status(400).json({
+        message: "User is not registered.",
+      });
+    }
+
+    const passwordMatch = await bcrypt.compare(password, reseller.password);
+
+    if (!passwordMatch) {
+      return res.status(404).json({ message: "Password does not match." });
+    }
+
+    const resellerID = { id: reseller.id };
+    const tokenID = jwt.sign(resellerID, JWT_SECRET, {
+      expiresIn: "24h",
+    });
+
+    return res
+      .status(200)
+      .json({ isAdmin: false, result: reseller, tokenID: tokenID });
+  } catch (error) {
+    console.log(error.message);
+  }
+};
+
 exports.usernameCheck = async (req, res) => {
   const { username } = req.body;
   const reseller = await Reseller.findOne({ username });
@@ -133,40 +167,6 @@ exports.ipCheck = async (req, res) => {
       status: false,
       message: "IP available.",
     });
-  }
-};
-
-exports.login = async (req, res) => {
-  const { phone, password } = req.body;
-
-  const JWT_SECRET =
-    "S3bwFeWy4VRrFDQ3r0vDircfvsAH3k7AIwg4DVCm8VhTfI/w8YHF3M0ZG+gCkbWwS1xYj1bVl8liAuETKkElGg==";
-
-  try {
-    const reseller = await Reseller.findOne({ phone });
-
-    if (!reseller) {
-      return res.status(400).json({
-        message: "User is not registered.",
-      });
-    }
-
-    const passwordMatch = await bcrypt.compare(password, reseller.password);
-
-    if (!passwordMatch) {
-      return res.status(404).json({ message: "Password does not match." });
-    }
-
-    const resellerID = { id: reseller.id };
-    const tokenID = jwt.sign(resellerID, JWT_SECRET, {
-      expiresIn: "24h",
-    });
-
-    return res
-      .status(200)
-      .json({ isAdmin: false, result: user, tokenID: tokenID });
-  } catch (error) {
-    console.log(error.message);
   }
 };
 

@@ -90,7 +90,7 @@ export const Reseller = () => {
 
       setUsernameValidation(res.data ? false : true);
     } catch (error) {
-      console.log(error.message);
+      console.error(error.message);
     }
   }, [username]);
 
