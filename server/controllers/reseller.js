@@ -36,10 +36,10 @@ exports.signup = async (req, res) => {
       password: hash,
     });
 
-    await newUser.save();
+    await newReseller.save();
 
-    const userID = { id: newReseller.id };
-    const tokenID = jwt.sign(userID, JWT_SECRET, {
+    const resellerID = { id: newReseller.id };
+    const tokenID = jwt.sign(resellerID, JWT_SECRET, {
       expiresIn: "24h",
     });
 

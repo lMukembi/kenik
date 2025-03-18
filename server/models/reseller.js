@@ -4,8 +4,8 @@ const resellerSchema = new mongoose.Schema(
   {
     ip: {
       type: String,
-      required:true,
-      unique:true,
+      required: true,
+      unique: true,
     },
 
     password: {
@@ -16,7 +16,7 @@ const resellerSchema = new mongoose.Schema(
     username: {
       type: String,
       required: true,
-      unique:true
+      unique: true
     },
 
     brand: {
