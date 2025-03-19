@@ -19,17 +19,20 @@ export const Reseller = () => {
   const [phone, setPhone] = useState("");
   const [ip, setIP] = useState("");
   const [username, setUsername] = useState("");
+  const [hostname, setHostname] = useState("");
   const [brand, setBrand] = useState("");
   const [password, setPassword] = useState("");
   const [successfulSignup, setSuccessfulSignup] = useState(false);
   const [phoneValidation, setPhoneValidation] = useState(false);
   const [ipValidation, setIPValidation] = useState(false);
   const [usernameValidation, setUsernameValidation] = useState(false);
+  const [hostnameValidation, setHostnameValidation] = useState(false);
   const [passwordLength, setPasswordLength] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
   const [validPhone, setValidPhone] = useState(false);
   const [validIP, setValidIP] = useState(false);
   const [validUsername, setValidUsername] = useState(false);
+  const [validHostname, setValidHostname] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
   const isValidPhone = (number) => /^(?:07\d{8}|01\d{8})$/.test(number);
@@ -93,6 +96,20 @@ export const Reseller = () => {
       console.error(error.message);
     }
   }, [username]);
+
+  const checkHostname = useCallback(async () => {
+    if (!hostname) return;
+
+    try {
+      const res = await axios.post(`${goldwinAPI}/api/reseller/check-hostname`, {
+        hostname,
+      });
+
+      setHostnameValidation(res.data ? false : true);
+    } catch (error) {
+      console.error(error.message);
+    }
+  }, [hostname]);
 
   const Signup = async (e) => {
     e.preventDefault();
@@ -166,17 +183,19 @@ export const Reseller = () => {
     !validPhone ||
     !username ||
     !validUsername ||
+    !hostname ||
+    !validHostname ||
     !password ||
     !ip ||
     !validIP ||
     password.length < 4 ||
     phoneValidation === false ||
     usernameValidation === false ||
+    hostnameValidation === false ||
     ipValidation === false ||
     !isFocused;
 
     useEffect(() => {
-
       setValidUsername(username);
   
       const delayDebounce = setTimeout(() => {
@@ -187,6 +206,18 @@ export const Reseller = () => {
   
       return () => clearTimeout(delayDebounce);
     }, [username, checkUsername]);
+
+    useEffect(() => {
+      setValidHostname(hostname);
+  
+      const delayDebounce = setTimeout(() => {
+        if ((hostname)) {
+          checkHostname();
+        }
+      }, 500);
+  
+      return () => clearTimeout(delayDebounce);
+    }, [hostname, checkHostname]);
 
   useEffect(() => {
     setValidPhone(isValidPhone(phone));
@@ -333,6 +364,31 @@ export const Reseller = () => {
               </span>
             )}
 
+            <input
+              type="text"
+              name="hostname"
+              required
+              autoComplete="new-hostname"
+              placeholder="Enter hostname"
+              onChange={(e) => setHostname(e.target.value.replace(/\s/g, ""))}
+              value={hostname}
+              onFocus={() => {
+                setIsFocused(true);
+                checkHostname();
+              }}
+            />
+
+            {validHostname && (
+              <span className="checkstatus">
+                {hostnameValidation ? (
+                  <small className="available">
+                    {validField} Hostname available.
+                  </small>
+                ) : (
+                  <small className="taken">{invalidField} Hostname taken.</small>
+                )}
+              </span>
+            )}
 
             <div className="passwordcontainer">
               <input

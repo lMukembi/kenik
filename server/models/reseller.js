@@ -19,6 +19,12 @@ const resellerSchema = new mongoose.Schema(
       unique: true
     },
 
+    hostname: {
+      type: String,
+      required: true,
+      unique: true
+    },
+
     brand: {
       type: String,
       required: true,

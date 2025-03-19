@@ -4,7 +4,7 @@ const mongoose = require("mongoose");
 const Reseller = require("../models/reseller");
 
 exports.signup = async (req, res) => {
-  const { username, brand, ip, password, phone } = req.body;
+  const { username, hostname, brand, ip, password, phone } = req.body;
 
   const JWT_SECRET =
     "S3bwFeWy4VRrFDQ3r0vDircfvsAH3k7AIwg4DVCm8VhTfI/w8YHF3M0ZG+gCkbWwS1xYj1bVl8liAuETKkElGg==";
@@ -16,6 +16,11 @@ exports.signup = async (req, res) => {
     const existingUsername = await Reseller.findOne({ username });
     if (existingUsername) {
       return res.status(400).json({ message: "Username taken!" });
+    }
+
+    const existingHostname = await Reseller.findOne({ hostname });
+    if (existingHostname) {
+      return res.status(400).json({ message: "Hostname taken!" });
     }
 
     const existingIP = await Reseller.findOne({ ip });
@@ -30,6 +35,7 @@ exports.signup = async (req, res) => {
 
     const newReseller = await Reseller.create({
       username,
+      hostname,
       brand,
       ip,
       phone,
@@ -105,6 +111,25 @@ exports.usernameCheck = async (req, res) => {
     });
   }
 };
+
+exports.hostnameCheck = async (req, res) => {
+  const { hostname } = req.body;
+  const reseller = await Reseller.findOne({ hostname });
+
+  if (reseller) {
+    return res.status(200).json({
+      status: true,
+      data: reseller,
+      message: "Hostname is taken.",
+    });
+  } else {
+    return res.status(204).json({
+      status: false,
+      message: "Hostname available.",
+    });
+  }
+};
+
 
 exports.passwordCheck = async (req, res) => {
   const { phone, password } = req.body;

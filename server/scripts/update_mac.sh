@@ -5,7 +5,7 @@ mongo --quiet --eval '
     db = db.getSiblingDB("kenikwifi");
 
     db.resellers.find().forEach(function(reseller) {
-        print(reseller.resellerID + "|" + reseller.ip + "|" + reseller.username + "|" + reseller.password + "|" + reseller.brand);
+        print(reseller._id + "|" + reseller.ip + "|" + reseller.username + "|" + reseller.password + "|" + reseller.brand);
     });
 ' | while IFS="|" read -r RESELLER_ID ROUTER_IP USERNAME PASSWORD ROUTER_BRAND; do
     
@@ -14,7 +14,7 @@ mongo --quiet --eval '
     # Fetch MACs associated with this reseller
     mongo --quiet --eval '
         db = db.getSiblingDB("kenikwifi");
-        db.packages.find({status: "paid", resellerID: "'"$RESELLER_ID"'" }).forEach(function(doc) {
+        db.packages.find({status: "paid", _id: "'"$RESELLER_ID"'" }).forEach(function(doc) {
             print(doc.mac_address);
         });
     ' | while read MAC; do
