@@ -66,10 +66,6 @@
   color: green;
 }
 
-#characters {
-  margin: -2rem 0px 2rem 0px;
-}
-
 .reseller button:enabled {
   margin: 0px 10px 2rem 10px;
   padding: 1rem 5px;

@@ -127,6 +127,7 @@ export const Reseller = () => {
         `${goldwinAPI}/api/reseller/signup`,
         {
           username,
+          hostname,
           phone: `254${phone.substring(1)}`,
           brand,
           password,
@@ -411,8 +412,8 @@ export const Reseller = () => {
             </div>
 
             {password && (
-              <span className="checkstatus" id="characters">
-                {passwordLength === false ? (
+              <span className="checkstatus">
+                {!passwordLength ? (
                   <small className="taken">
                     {invalidField} Type at least 4 characters.
                   </small>
@@ -422,7 +423,7 @@ export const Reseller = () => {
               </span>
             )}
 
-            <button disabled={isDisabled}>Register</button>
+            <button disabled={isDisabled}>Save</button>
             <div className="resellerinfo">
               <div>
                 Already have an account?
