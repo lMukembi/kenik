@@ -7,7 +7,7 @@ import Logo from "../assets/images/Logo.png";
 import "../css/resetPassword.css";
 import axios from "axios";
 
-const goldwinAPI = "https://demo.teslacarsonly.com";
+const goldwinAPI = "https://app.kenikwifi.com";
 // const goldwinAPI = "http://localhost:8000";
 
 export const ResetPassword = () => {

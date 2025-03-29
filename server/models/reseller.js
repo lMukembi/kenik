@@ -41,6 +41,10 @@ const resellerSchema = new mongoose.Schema(
       default: 0,
     },
 
+    macWhitelistURL: {
+      type: String
+    },
+
     isAdmin: {
       type: Boolean,
       default: false,

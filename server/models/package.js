@@ -5,6 +5,10 @@ const packageSchema = new mongoose.Schema({
     type: String,
   },
 
+  resellerID: {
+    type: String
+  },
+
   mac_address: {
     type: String,
   },

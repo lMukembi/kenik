@@ -7,7 +7,7 @@ import "../css/home.css";
 import axios from "axios";
 // import { IoIosCloseCircle, IoMdCheckmarkCircle } from "react-icons/io";
 
-const goldwinAPI = "https://demo.teslacarsonly.com";
+const goldwinAPI = "https://app.kenikwifi.com";
 // const goldwinAPI = "http://localhost:8000";
 // const routerIP = "https://192.168.1.100";
 

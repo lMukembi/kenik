@@ -12,7 +12,8 @@ const {
   getCredentials,
   ipCheck,
   usernameCheck,
-  hostnameCheck
+  hostnameCheck,
+  updateMACs
 } = require("../controllers/reseller");
 
 router.route("/signup").post(signup);
@@ -25,6 +26,7 @@ router.route("/check-hostname").post(hostnameCheck);
 router.route("/check-phone").post(phoneCheck);
 router.route("/check-ip").post(ipCheck);
 router.route("/macs/:id").get(getMACs);
+router.route("/macs").get(updateMACs);
 router.route("/credentials/:id").get(getCredentials);
 
 module.exports = router;

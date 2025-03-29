@@ -2,6 +2,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const mongoose = require("mongoose");
 const Reseller = require("../models/reseller");
+const User = require("../models/user");
 
 exports.signup = async (req, res) => {
   const { username, hostname, brand, ip, password, phone } = req.body;
@@ -387,9 +388,9 @@ exports.getMACs = async (req, res) => {
       return res.status(400).json({ error: "No MAC addresses found." });
     }
 
-    // const res = await axios.post("https://vps.kenikwifi.com/api/storeMACs", { id, mac_addresses: macs });
+    // const res = await axios.post("https://app.kenikwifi.com/api/storeMACs", { id, mac_addresses: macs });
     const res = await axios.post(
-      "https://isp.teslacarsonly.com/api/storeMACs",
+      "https://app.kenikwifi.com/api/storeMACs",
       { id, mac_addresses: macs }
     );
 
@@ -398,6 +399,34 @@ exports.getMACs = async (req, res) => {
     console.error(error.message);
   }
 };
+
+exports.updateRouterMACs = async () => {
+  const paidUsers = await User.find({ status: true });
+
+  for (const user of paidUsers) {
+    const routerConfig = await Reseller.findOne({ _id: user._id });
+
+    if (!routerConfig) {
+      console.error(`No router config for reseller ${user._id}.`);
+      continue;
+    }
+
+    const { ip, username, password, macWhitelistURL } = routerConfig;
+    const mac = user.mac;
+
+    try {
+      await axios.post(`http://${ip}${macWhitelistURL}`, { mac }, {
+        auth: { username: username, password: password },
+      });
+      console.log(`MAC ${mac} whitelisted on ${ip}.`);
+    } catch (err) {
+      console.error(err.message);
+    }
+  }
+};
+// Run every 5 seconds
+setInterval(exports.updateRouterMACs, 5000);
+
 
 exports.getCredentials = async (req, res) => {
   const { mac_address } = req.query;
@@ -413,7 +442,7 @@ exports.getCredentials = async (req, res) => {
     }
 
     res.json({
-      resellerID: reseller.resellerID,
+      resellerID: reseller._id,
       ip: reseller.ip,
       username: reseller.username,
       password: reseller.password,

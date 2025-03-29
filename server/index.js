@@ -12,9 +12,9 @@ const MONGO_URI = "mongodb://kenik:1919@127.0.0.1:27017/kenikwifi";
 
 const corsOptions = {
   origin: [
-    "https://teslacarsonly.com",
-    // "https://www.teslacarsonly.com",
-    "https://demo.teslacarsonly.com",
+    "https://kenikwifi.com",
+    // "https://www.kenikwifi.com",
+    "https://app.kenikwifi.com",
     // "http://192.168.1.100",
     // "http://localhost:3000",
   ],
