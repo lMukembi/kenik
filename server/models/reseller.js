@@ -2,6 +2,11 @@ const mongoose = require("mongoose");
 
 const resellerSchema = new mongoose.Schema(
   {
+    resellerID: {
+      type: String,
+      required: true,
+    },
+
     ip: {
       type: String,
       required: true,

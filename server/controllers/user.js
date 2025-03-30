@@ -4,7 +4,6 @@ const jwt = require("jsonwebtoken");
 const mongoose = require("mongoose");
 const Package = require("../models/package");
 const Admin = require("../models/admin");
-const { exec } = require("child_process");
 
 exports.signup = async (req, res) => {
   const { password, phone } = req.body;

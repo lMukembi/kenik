@@ -1,11 +1,14 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const mongoose = require("mongoose");
+const crypto = require('crypto');
 const Reseller = require("../models/reseller");
 const User = require("../models/user");
 
 exports.signup = async (req, res) => {
   const { username, hostname, brand, ip, password, phone } = req.body;
+
+  const randomID = crypto.randomBytes(16).toString('hex');
 
   const JWT_SECRET =
     "S3bwFeWy4VRrFDQ3r0vDircfvsAH3k7AIwg4DVCm8VhTfI/w8YHF3M0ZG+gCkbWwS1xYj1bVl8liAuETKkElGg==";
@@ -35,6 +38,7 @@ exports.signup = async (req, res) => {
     }
 
     const newReseller = await Reseller.create({
+      resellerID: randomID,
       username,
       hostname,
       brand,
@@ -45,8 +49,8 @@ exports.signup = async (req, res) => {
 
     await newReseller.save();
 
-    const resellerID = { id: newReseller.id };
-    const tokenID = jwt.sign(resellerID, JWT_SECRET, {
+    const resellID = { id: newReseller.id };
+    const tokenID = jwt.sign(resellID, JWT_SECRET, {
       expiresIn: "24h",
     });
 
@@ -411,7 +415,18 @@ exports.updateRouterMACs = async () => {
       continue;
     }
 
-    const { ip, username, password, macWhitelistURL } = routerConfig;
+    let macWhitelistURL;
+
+    if (routerConfig.brand === "Tenda") {
+      macWhitelistURL = "/goform/setMacFilter";
+    } else if (routerConfig.brand === "TP-Link") {
+      macWhitelistURL = "/cgi-bin/luci/admin/network/firewall";
+    } else {
+      console.error("Unsupported brand.");
+      continue;
+    }
+
+    const { ip, username, password } = routerConfig;
     const mac = user.mac;
 
     try {
@@ -442,7 +457,7 @@ exports.getCredentials = async (req, res) => {
     }
 
     res.json({
-      resellerID: reseller._id,
+      resellerID: reseller.resellerID,
       ip: reseller.ip,
       username: reseller.username,
       password: reseller.password,

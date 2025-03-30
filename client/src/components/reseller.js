@@ -326,6 +326,11 @@ export const Reseller = () => {
               </span>
             )}
 
+            {/* <select value={brand} onChange={(e) => setBrand(e.target.value)} >
+              <option value="Tenda">Tenda</option>
+              <option value="TP-Link">TP-Link</option>
+            </select> */}
+
             <input
               type="text"
               name="brand"

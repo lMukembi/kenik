@@ -2,6 +2,10 @@ const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema(
   {
+    resellerID: {
+      type: String
+    },
+    
     phone: {
       type: String,
       required: true,
