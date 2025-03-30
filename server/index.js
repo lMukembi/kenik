@@ -31,7 +31,7 @@ app.options("*", cors());
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(express.static(path.join(__dirname, "client/build")));
+app.use(express.static(path.join(__dirname, "../client/build")));
 
 app.use("/api/admin", require("./routes/admin"));
 app.use("/api/user", require("./routes/user"));
@@ -39,7 +39,7 @@ app.use("/api/reseller", require("./routes/reseller"));
 app.use("/api/payment", require("./routes/payment"));
 
 app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "client/build", "index.html"));
+  res.sendFile(path.join(__dirname, "../client/build", "index.html"));
 });
 
 // app.get("*", (req, res) => {
