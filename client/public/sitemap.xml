@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+		<!--	KENIK WI-FI SITEMAP	-->
+		<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<url>
+	<loc>https://kenikwifi.com/</loc>
+	<priority>1.0</priority>
+</url>
+<url>
+	<loc>https://kenikwifi.com/image</loc>
+	<priority>1.0</priority>
+</url>
+<url>
+	<loc>https://kenikwifi.com/reset-password</loc>
+	<priority>1.0</priority>
+</url>
+<url>
+	<loc>https://kenikwifi.com/login</loc>
+	<priority>1.0</priority>
+</url>
+<url>
+	<loc>https://kenikwifi.com/signup</loc>
+	<priority>1.0</priority>
+</url>
+<url>
+	<loc>https://kenikwifi.com/reseller</loc>
+	<priority>1.0</priority>
+</url>
+</urlset>
