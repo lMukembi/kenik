@@ -272,7 +272,7 @@ export const Home = () => {
   return (
     <div className="home_wrapper">
       <div className="header">
-        <img src={""} alt="Kenik Wi-Fi" />
+        {/* <img src={""} alt="Kenik Wi-Fi" /> */}
         <h2>Kenik Wi-Fi</h2>
       </div>
       <hr className="hr" id="headerhr" />
