@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { IoCallOutline, IoLogoWhatsapp, IoMailOutline } from "react-icons/io5";
-import {  useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { toast, Bounce } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "../css/home.css";
@@ -272,6 +272,7 @@ export const Home = () => {
   return (
     <div className="home_wrapper">
       <div className="header">
+        <img src={""} alt="Kenik Wi-Fi" />
         <h2>Kenik Wi-Fi</h2>
       </div>
       <hr className="hr" id="headerhr" />
@@ -358,7 +359,7 @@ export const Home = () => {
       <hr className="hr" id="footerhr" />
 
       <div className="footer">
-        &copy; {new Date().getFullYear()}, Kenik Solutions
+        &copy; {new Date().getFullYear()}, Kenik Wi-Fi
       </div>
     </div>
   );

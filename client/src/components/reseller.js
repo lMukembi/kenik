@@ -441,7 +441,7 @@ export const Reseller = () => {
           <hr className="hr" id="footerhr" />
 
           <div className="footer">
-            &copy; {new Date().getFullYear()}, Kenik Solutions
+            &copy; {new Date().getFullYear()}, Kenik Wi-Fi
           </div>
         </div>
       )}
