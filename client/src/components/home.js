@@ -5,115 +5,106 @@ import { toast, Bounce } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "../css/home.css";
 import axios from "axios";
-// import { IoIosCloseCircle, IoMdCheckmarkCircle } from "react-icons/io";
 
 const goldwinAPI = "https://app.kenikwifi.com";
-// const goldwinAPI = "http://localhost:8000";
-// const routerIP = "https://192.168.1.100";
 
 export const Home = () => {
-  // const userData = JSON.parse(localStorage.getItem("JSUD"));
-
-  // const [userInfo, setUserInfo] = useState({});
   const [phone, setPhone] = useState("");
   const [amount, setAmount] = useState("");
   const [loading, setLoading] = useState(false);
-  // const [messages, setMessages] = useState([]);
-  const [duration, setDuration] = useState("");
+  const [preview, setPreview] = useState(null);
   const [userIP, setUserIP] = useState("");
   const [phoneValidation, setPhoneValidation] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
   const [validPhone, setValidPhone] = useState(false);
+  const [activePackage, setActivePackage] = useState(null);
 
   const isValidPhone = (number) => /^(?:07\d{8}|01\d{8})$/.test(number);
-
-  // const validField = <IoMdCheckmarkCircle />;
-  // const invalidField = <IoIosCloseCircle />;
-
-  const pricePerDay = 24;
-  const hoursPerDay = 24;
-
-  const currentDateTime = new Date().toLocaleString();
-
-  const time = (amount / pricePerDay) * hoursPerDay;
-
-  const now = new Date();
-  now.setHours(now.getHours() + time);
-
-  const expireTime = now.toLocaleString();
-
   const navigate = useNavigate();
 
+  // Get pricing preview when amount changes
   useEffect(() => {
-    calculateDuration(amount);
+    const getPreview = async () => {
+      if (amount && parseInt(amount) >= 5) {
+        try {
+          const response = await axios.post(
+            `${goldwinAPI}/api/payment/preview`,
+            {
+              amount: parseInt(amount),
+            }
+          );
+
+          if (response.data.success) {
+            setPreview(response.data.preview);
+          }
+        } catch (error) {
+          console.error("Preview error:", error);
+          setPreview(null);
+        }
+      } else {
+        setPreview(null);
+      }
+    };
+
+    const delayDebounce = setTimeout(getPreview, 300);
+    return () => clearTimeout(delayDebounce);
   }, [amount]);
 
-  const calculateDuration = (value) => {
-    if (!value || isNaN(value) || value <= 0) {
-      setDuration("");
-      return;
-    }
-
-    const totalHours = (value / pricePerDay) * hoursPerDay;
-    let days = Math.floor(totalHours / hoursPerDay);
-    let hours = Math.round(totalHours % hoursPerDay);
-
-    if (hours === 24) {
-      hours = 0;
-      days += 1;
-    }
-
-    if (days === 0 && hours === 0) {
-      hours = 1;
-    }
-
-    setDuration(`${days} Days ${hours} Hours`);
-  };
-
+  // Check for existing package and get user IP
   useEffect(() => {
-    axios
-      .get("https://api64.ipify.org?format=json")
-      .then(({ data }) => {
-        setUserIP(data.ip);
+    const initializeUser = async () => {
+      try {
+        // Get user IP
+        const ipResponse = await axios.get(
+          "https://api64.ipify.org?format=json"
+        );
+        setUserIP(ipResponse.data.ip);
 
-        return axios.post(`${goldwinAPI}/api/user/package`, { ip: data.ip });
-      })
-      .then(({ data }) => {
-        if (data) {
-          return navigate("/");
+        // Check for active package
+        const packageResponse = await axios.post(
+          `${goldwinAPI}/api/payment/check-package`,
+          {
+            ip: ipResponse.data.ip,
+          }
+        );
+
+        if (packageResponse.data.hasActivePackage) {
+          setActivePackage(packageResponse.data.package);
+          toast.info(
+            `You have an active ${
+              packageResponse.data.package.tier
+            } package until ${new Date(
+              packageResponse.data.package.expiresAt
+            ).toLocaleString()}`,
+            {
+              position: "top-right",
+              autoClose: 6000,
+              hideProgressBar: false,
+              closeOnClick: false,
+              pauseOnHover: true,
+              draggable: true,
+              progress: undefined,
+              theme: "light",
+              transition: Bounce,
+            }
+          );
         }
-      })
-      .catch((error) => {
-        console.error(error.message);
-      });
-  }, [navigate]);
+      } catch (error) {
+        console.error("Initialization error:", error.message);
+      }
+    };
 
-  const generateTransactionCode = () => {
-    const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    const numbers = "0123456789";
-    const alphanumeric = letters + numbers;
-
-    const getRandomChar = (charset) =>
-      charset[Math.floor(Math.random() * charset.length)];
-
-    const code =
-      getRandomChar(letters) +
-      getRandomChar(letters) +
-      [...Array(6)].map(() => getRandomChar(alphanumeric)).join("");
-
-    return code;
-  };
+    initializeUser();
+  }, []);
 
   const checkPhone = useCallback(async () => {
     if (!isValidPhone(phone)) return;
 
     try {
       const Phone = `254${phone.substring(1)}`;
-
       const res = await axios.post(`${goldwinAPI}/api/user/check-phone`, {
         phone: Phone,
       });
-
       setPhoneValidation(res.data ? false : true);
     } catch (error) {
       console.log(error.message);
@@ -124,7 +115,7 @@ export const Home = () => {
     e.preventDefault();
 
     if (!amount || amount < 5) {
-      toast.warn("Please enter at least 5 KES.", {
+      toast.warn("Please enter at least KSh 5.", {
         position: "top-right",
         autoClose: 4000,
         hideProgressBar: false,
@@ -138,11 +129,22 @@ export const Home = () => {
       return;
     }
 
-    const totalHours = (amount / pricePerDay) * hoursPerDay;
+    if (!preview || !preview.valid) {
+      toast.error("Invalid amount. Please check your input.", {
+        position: "top-right",
+        autoClose: 4000,
+        hideProgressBar: false,
+        closeOnClick: false,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+        transition: Bounce,
+      });
+      return;
+    }
 
-    const transactionCode = generateTransactionCode();
-
-    toast.success("Message sent, Wait for M-Pesa to reply.", {
+    toast.success("Processing payment request...", {
       position: "top-right",
       autoClose: 4000,
       hideProgressBar: false,
@@ -159,22 +161,28 @@ export const Home = () => {
     try {
       const res = await axios.post(`${goldwinAPI}/api/payment/deposit`, {
         ip: userIP,
-        amount,
-        phone,
-        duration: totalHours,
-        transID: transactionCode,
-        hours: time,
+        amount: parseInt(amount),
+        phone: phone,
       });
 
-      setAmount("");
+      if (res.data.success && res.data.data.Status === true) {
+        const sessionDetails = res.data.data.sessionDetails;
+        const credentials = res.data.data.credentials;
 
-      if (res.data.data.Status === true) {
         toast.success(
-          `Congratulations! You have successfully subscribed to ${duration} access valid until ${expireTime} worth KES ${amount}.00 on ${currentDateTime}.
-          Transaction Ref ID: ${transactionCode}. Thank you.`,
+          `🎉 Payment Successful! 
+          📱 You've got ${sessionDetails.sessionHours} hours of ${
+            sessionDetails.tier
+          } internet at ${sessionDetails.speed}!
+          ${
+            credentials
+              ? `Username: ${credentials.username}, Password: ${credentials.password}`
+              : "Access will be activated shortly."
+          }
+          Valid until: ${new Date(sessionDetails.expires_at).toLocaleString()}`,
           {
             position: "top-right",
-            autoClose: 4000,
+            autoClose: 8000,
             hideProgressBar: false,
             closeOnClick: false,
             pauseOnHover: true,
@@ -185,11 +193,17 @@ export const Home = () => {
           }
         );
 
+        // Clear form
+        setAmount("");
+        setPhone("");
+        setPreview(null);
+
+        // Redirect after showing message
         setTimeout(() => {
-          return navigate("/");
-        }, 4000);
+          window.location.reload();
+        }, 8000);
       } else {
-        return toast.error("Payment failed!", {
+        toast.error("Payment failed! Please try again.", {
           position: "top-right",
           autoClose: 4000,
           hideProgressBar: false,
@@ -203,56 +217,21 @@ export const Home = () => {
       }
     } catch (error) {
       console.error(error.message);
+      toast.error("Payment failed! Please check your network and try again.", {
+        position: "top-right",
+        autoClose: 4000,
+        hideProgressBar: false,
+        closeOnClick: false,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+        transition: Bounce,
+      });
     } finally {
       setLoading(false);
     }
   };
-
-  // useEffect(() => {
-  //   const getUserData = async () => {
-  //     try {
-  //       const userInfoData = JSON.parse(localStorage.getItem("JSUD"));
-  //       if (!userInfoData) {
-  //         return redirect("/login");
-  //       }
-  //       const userID = userInfoData.SESSID;
-
-  //       const res = await axios.get(
-  //         `${goldwinAPI}/api/user/${userID}/user-data`
-  //       );
-  //       if (res) {
-  //         setUserInfo(res.data);
-  //       }
-  //     } catch (err) {
-  //       console.log(err.message);
-  //     }
-  //   };
-
-  //   getUserData();
-  // }, []);
-
-  // useEffect(() => {
-  //   const getMessages = async () => {
-  //     try {
-  //       const userInfoData = JSON.parse(localStorage.getItem("JSUD"));
-  //       if (!userInfoData) {
-  //         return redirect("/login");
-  //       }
-  //       const userID = userInfoData.SESSID;
-
-  //       const res = await axios.get(
-  //         `${goldwinAPI}/api/payment/${userID}/messages`
-  //       );
-  //       if (res.data) {
-  //         setMessages(res.data);
-  //       }
-  //     } catch (err) {
-  //       console.log(err.message);
-  //     }
-  //   };
-
-  //   getMessages();
-  // }, []);
 
   useEffect(() => {
     setValidPhone(isValidPhone(phone));
@@ -269,45 +248,109 @@ export const Home = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
+
+  // Quick amount buttons
+  const quickAmounts = [20, 50, 100, 200, 500, 1000];
+
+  const selectQuickAmount = (quickAmount) => {
+    setAmount(quickAmount.toString());
+  };
+
   return (
     <div className="home_wrapper">
       <div className="header">
-        {/* <img src={""} alt="Kenik Wi-Fi" /> */}
         <h2>Kenik Wi-Fi</h2>
       </div>
       <hr className="hr" id="headerhr" />
-      <form
-        className="home"
-        onSubmit={(e) => {
-          handlePackage(e);
-          calculateDuration(e.target.value);
-        }}
-      >
-        <h3>Make Your Hook</h3>
 
+      {activePackage && (
+        <div className="active-package-info">
+          <h3>🌐 Active Package</h3>
+          <p>
+            <strong>Tier:</strong> {activePackage.tier}
+          </p>
+          <p>
+            <strong>Speed:</strong> {activePackage.speed}
+          </p>
+          <p>
+            <strong>Expires:</strong>{" "}
+            {new Date(activePackage.expiresAt).toLocaleString()}
+          </p>
+          {activePackage.username && (
+            <p>
+              <strong>Login:</strong> {activePackage.username}/
+              {activePackage.password}
+            </p>
+          )}
+        </div>
+      )}
+
+      <form className="home" onSubmit={handlePackage}>
+        <h3>💰 Pay Any Amount, Get Fair Time!</h3>
+
+        {/* Quick Amount Buttons */}
+        <div className="quick-amounts">
+          <p>Quick Select:</p>
+          <div className="amount-buttons">
+            {quickAmounts.map((quickAmount) => (
+              <button
+                key={quickAmount}
+                type="button"
+                className={`quick-amount-btn ${
+                  amount == quickAmount ? "selected" : ""
+                }`}
+                onClick={() => selectQuickAmount(quickAmount)}
+              >
+                KSh {quickAmount}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Amount Input */}
         <input
           type="number"
           name="amount"
           required
-          placeholder="Enter at least 5 KES"
+          min="5"
+          step="5"
+          placeholder="Enter any amount (Min: KSh 5)"
           autoComplete="off"
+          value={amount}
           onChange={(e) => setAmount(e.target.value)}
         />
 
-        <div className="duration">
-          {amount >= 5 && duration && (
-            <>
-              <small>
-                Valid:<span> {duration}</span>
-              </small>
-              <small>
-                Expires:<span> {expireTime}</span>
-              </small>
-            </>
-          )}
-        </div>
+        {/* Live Preview */}
+        {preview && preview.valid && (
+          <div className="pricing-preview">
+            <div className="preview-card">
+              <h4>📊 You'll Get:</h4>
+              <div className="preview-details">
+                <p>
+                  <strong>⏰ Duration:</strong> {preview.details.sessionHours}{" "}
+                  hours
+                </p>
+                <p>
+                  <strong>🚀 Speed:</strong> {preview.details.speed}
+                </p>
+                <p>
+                  <strong>⭐ Tier:</strong> {preview.details.tier}
+                </p>
+                <p>
+                  <strong>💳 Rate:</strong> KSh {preview.details.ratePerHour}
+                  /hour
+                </p>
+                <p>
+                  <strong>⏰ Valid Until:</strong>{" "}
+                  {new Date(preview.details.expires_at).toLocaleString()}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
 
-        {amount && amount >= 5 && (
+        {/* Phone Input */}
+        {amount && parseInt(amount) >= 5 && (
           <input
             type="tel"
             maxLength={10}
@@ -324,18 +367,37 @@ export const Home = () => {
           />
         )}
 
+        {/* Phone Validation */}
+        {phone && validPhone && (
+          <div className="phone-validation">
+            {phoneValidation ? (
+              <small className="validation-success">
+                ✅ Phone number available
+              </small>
+            ) : (
+              <small className="validation-error">
+                ❌ Phone number already in use
+              </small>
+            )}
+          </div>
+        )}
+
         <button
           disabled={
             loading ||
-            amount < 5 ||
-            !isFocused ||
+            !amount ||
+            parseInt(amount) < 5 ||
+            !preview ||
+            !preview.valid ||
             !phone ||
-            phoneValidation === false ||
+            !validPhone ||
             phone.length !== 10 ||
-            !validPhone
+            phoneValidation === false
           }
         >
-          {loading ? "Processing..." : "Subscribe"}
+          {loading
+            ? "Processing Payment..."
+            : `💳 Pay KSh ${amount || "0"} via M-Pesa`}
         </button>
       </form>
 
@@ -347,7 +409,6 @@ export const Home = () => {
         >
           <IoLogoWhatsapp />
         </a>
-
         <a href="tel:+254725540469">
           <IoCallOutline />
         </a>

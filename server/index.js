@@ -6,9 +6,9 @@ const connectionDB = require("./connect.js");
 require("dotenv").config();
 const app = express();
 const port = 8000;
-const MONGO_URI = "mongodb://kenik:1919@127.0.0.1:27017/kenikwifi";
-// const MONGO_URI =
-//   "mongodb+srv://kenik:1919@kenik.flr9f.mongodb.net/?retryWrites=true&w=majority&appName=Kenik";
+// const MONGO_URI = "mongodb://kenik:1919@127.0.0.1:27017/kenikwifi";
+const MONGO_URI =
+  "mongodb+srv://kenik:1919@kenik.flr9f.mongodb.net/?retryWrites=true&w=majority&appName=Kenik";
 
 const corsOptions = {
   origin: [
@@ -24,7 +24,6 @@ const corsOptions = {
   exposedHeaders: ["Authorization"],
 };
 
-
 app.use(cors(corsOptions));
 
 app.options("*", cors());
@@ -37,7 +36,7 @@ app.use("/api/admin", require("./routes/admin"));
 app.use("/api/user", require("./routes/user"));
 app.use("/api/reseller", require("./routes/reseller"));
 app.use("/api/payment", require("./routes/payment"));
-
+app.use("/api/mikrotik", require("./routes/mikrotik"));
 app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "../client/build", "index.html"));
 });

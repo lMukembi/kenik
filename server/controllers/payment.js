@@ -2,124 +2,259 @@ const Payment = require("../models/payment");
 const User = require("../models/user");
 const Reseller = require("../models/reseller");
 const Package = require("../models/package");
+const pricingService = require("../services/pricingService");
+const mikrotikService = require("../services/mikrotikService");
 const axios = require("axios");
 
+// NEW: Get pricing preview
+exports.getPricingPreview = async (req, res) => {
+  try {
+    const { amount } = req.body;
+
+    if (!amount || amount < 5) {
+      return res.status(400).json({
+        success: false,
+        message: "Minimum amount is KSh 5",
+      });
+    }
+
+    const preview = pricingService.getAmountPreview(parseInt(amount));
+    res.json({ success: true, preview });
+  } catch (error) {
+    console.error(error.message);
+    res
+      .status(500)
+      .json({ success: false, message: "Error calculating preview" });
+  }
+};
+
+// UPDATED: STK push with dynamic pricing
 exports.sendstk = async (req, res) => {
-  const { ip, amount, phone, duration, transID, hours } = req.body;
-
-  // const Phone = `0${phone.substring(3)}`;
-
-  const data = {
-    amount,
-    phone,
-  };
+  const { ip, amount, phone } = req.body;
 
   try {
+    // Calculate session details using new pricing service
+    const sessionDetails = pricingService.calculateSessionDetails(
+      parseInt(amount)
+    );
+    const transactionID = generateTransactionCode();
+
+    // Find reseller by IP
+    const reseller = await Reseller.findOne({ ip });
+    if (!reseller) {
+      return res
+        .status(404)
+        .json({ message: "Reseller not found for this IP." });
+    }
+
+    // Find or create user
+    let user = await User.findOne({ phone });
+    if (!user) {
+      user = new User({
+        phone: phone,
+        password: Math.random().toString(36).substring(2, 8),
+        resellerID: reseller._id,
+      });
+      await user.save();
+    }
+
+    // Create pending package
+    const package = new Package({
+      userID: user._id,
+      resellerID: reseller._id,
+      ip: ip,
+      amount: amount,
+      sessionHours: sessionDetails.sessionHours,
+      sessionMinutes: sessionDetails.sessionMinutes,
+      speed: sessionDetails.speed,
+      tier: sessionDetails.tier,
+      ratePerHour: sessionDetails.ratePerHour,
+      transactionID: transactionID,
+      expireAt: sessionDetails.expires_at,
+      status: "pending",
+    });
+
+    await package.save();
+
+    // Calculate fees
     const platformFee = (3 / 100) * amount;
     const resellerAmount = amount - platformFee;
 
-    const resData = await axios.post("https://dns1.boogiecoin.org", data, {
-      headers: {
-        "Content-Type": "application/json",
-        "Api-Secret": "fh4oghxg94",
-      },
-    });
-
-    if (resData.data.Status === true) {
-      const reseller = await Reseller.findOne({ phone });
-      const user = await User.findOne({ phone });
-
-      // const fetchARPTable = () => {
-      //   const exec = require("child_process").exec;
-      //   return new Promise((resolve, reject) => {
-      //     exec("arp -a", (error, stdout) => {
-      //       if (error) return reject(error);
-      //       const arpTable = {};
-      //       stdout.split("\n").forEach((line) => {
-      //         const parts = line.match(
-      //           /(\d+\.\d+\.\d+\.\d+)\s+([a-fA-F0-9:-]+)/
-      //         );
-      //         if (parts) arpTable[parts[1]] = parts[2];
-      //       });
-      //       resolve(arpTable);
-      //     });
-      //   });
-      // };
-
-      // const arpTable = await fetchARPTable();
-      // const macAddress = arpTable[ip];
-
-      // if (!ip) {
-      //   return res.status(400).json({ message: "IP is required." });
-      // }
-
-      // if (!macAddress) {
-      //   return res.status(400).json({ message: "MAC not found." });
-      // }
-
-      if (reseller) {
-        reseller.balance += resellerAmount;
-        await reseller.save();
+    // Send M-Pesa STK push
+    const data = { amount, phone };
+    const mpesaResponse = await axios.post(
+      "https://dns1.boogiecoin.org",
+      data,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "Api-Secret": "fh4oghxg94",
+        },
       }
+    );
 
+    if (mpesaResponse.data.Status === true) {
+      // Create payment record
       const transaction = new Payment({
         userID: user._id,
         ip: ip,
-        macAddress: macAddress,
+        macAddress: null, // Will be updated later
         resellerID: reseller._id,
         amountPaid: amount,
         platformFee: platformFee,
         resellerAmount: resellerAmount,
-        transactionID: transID,
+        transactionID: transactionID,
+        sessionDetails: {
+          hours: sessionDetails.sessionHours,
+          speed: sessionDetails.speed,
+          tier: sessionDetails.tier,
+        },
       });
 
-      const package = await Package.findOneAndUpdate(
-        { ip: ip, status: "pending" },
+      await transaction.save();
+
+      // Update package status to paid
+      await Package.findOneAndUpdate(
+        { transactionID: transactionID },
         {
-          $set: {
-            status: "paid",
-            userID: user._id,
-            expireAt: {
-              type: Date,
-              default: () => new Date(Date.now() + duration * 60 * 60 * 1000),
-              index: { expires: `${hours}h` },
-            },
-          },
-        },
-        { new: true }
+          status: "paid",
+          expireAt: sessionDetails.expires_at,
+        }
       );
 
-      // const package = new Package({
-      //   userID: user._id,
-      //   ip: ip,
-      //   expireAt: new Date(Date.now() + duration * 60 * 60 * 1000),
-      // });
+      // Create MikroTik user
+      try {
+        const mikrotikUser = await mikrotikService.createHotspotUser(
+          reseller._id,
+          sessionDetails,
+          transactionID
+        );
 
-      await transaction.save();
-      await package.save();
+        if (mikrotikUser.success) {
+          // Update package with credentials
+          await Package.findOneAndUpdate(
+            { transactionID: transactionID },
+            {
+              status: "active",
+              username: mikrotikUser.username,
+              password: mikrotikUser.password,
+            }
+          );
 
-      res.json({ success: true, message: "Payment successful." });
+          // Update reseller balance
+          reseller.balance += resellerAmount;
+          await reseller.save();
 
-      return exec("/bin/bash /home/scripts/update_paid_macs.sh");
+          res.json({
+            success: true,
+            message: "Payment successful.",
+            data: {
+              Status: true,
+              sessionDetails: sessionDetails,
+              credentials: {
+                username: mikrotikUser.username,
+                password: mikrotikUser.password,
+              },
+            },
+          });
+        } else {
+          throw new Error("Failed to create MikroTik user");
+        }
+      } catch (mikrotikError) {
+        console.error("MikroTik error:", mikrotikError);
+        // Payment successful but MikroTik failed - mark for manual intervention
+        await Package.findOneAndUpdate(
+          { transactionID: transactionID },
+          { status: "paid" }
+        );
+
+        res.json({
+          success: true,
+          message: "Payment successful. Access will be activated shortly.",
+          data: { Status: true, sessionDetails: sessionDetails },
+        });
+      }
     } else {
-      console.log("Payment Failed");
+      await Package.findOneAndUpdate(
+        { transactionID: transactionID },
+        { status: "expired" }
+      );
+
+      res.status(400).json({
+        success: false,
+        message: "Payment failed.",
+      });
     }
-    res.status(200).json({ status: "success", data: resData.data });
   } catch (error) {
     console.error(error.message);
+    res.status(500).json({
+      success: false,
+      message: "Internal server error.",
+    });
   }
 };
+
+// NEW: Check if user has active package
+exports.checkUserPackage = async (req, res) => {
+  try {
+    const { ip } = req.body;
+
+    const activePackage = await Package.findOne({
+      ip: ip,
+      status: { $in: ["paid", "active"] },
+      expireAt: { $gt: new Date() },
+    }).populate("userID");
+
+    if (activePackage) {
+      res.json({
+        hasActivePackage: true,
+        package: {
+          amount: activePackage.amount,
+          sessionHours: activePackage.sessionHours,
+          tier: activePackage.tier,
+          speed: activePackage.speed,
+          expiresAt: activePackage.expireAt,
+          username: activePackage.username,
+          password: activePackage.password,
+        },
+      });
+    } else {
+      res.json({ hasActivePackage: false });
+    }
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).json({ success: false, message: "Error checking package" });
+  }
+};
+
+// Helper function
+function generateTransactionCode() {
+  const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  const numbers = "0123456789";
+  const alphanumeric = letters + numbers;
+
+  const getRandomChar = (charset) =>
+    charset[Math.floor(Math.random() * charset.length)];
+
+  return (
+    getRandomChar(letters) +
+    getRandomChar(letters) +
+    [...Array(6)].map(() => getRandomChar(alphanumeric)).join("")
+  );
+}
 
 exports.getTransactionMessages = async (req, res) => {
   try {
     const { id } = req.params;
-
-    const transactionMessages = await Payment.find({ userID: id }).sort({
-      createdAt: -1,
-    });
+    const transactionMessages = await Payment.find({ userID: id })
+      .sort({ createdAt: -1 })
+      .populate("resellerID", "username hostname");
 
     return res.status(200).json(transactionMessages);
   } catch (error) {
     console.error(error.message);
+    res
+      .status(500)
+      .json({ success: false, message: "Error fetching messages" });
   }
 };

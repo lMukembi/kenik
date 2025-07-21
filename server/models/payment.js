@@ -7,40 +7,40 @@ const paymentSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
-
     ip: {
       type: String,
       required: true,
     },
-
     macAddress: {
       type: String,
-      required: true,
+      default: null, // Allow null initially
     },
-
     resellerID: {
-      type: String,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Reseller",
       required: true,
     },
-
     platformFee: {
-      type: String,
+      type: Number,
       required: true,
     },
-
     amountPaid: {
       type: Number,
       required: true,
     },
-
     resellerAmount: {
-      type: String,
+      type: Number,
       required: true,
     },
-
     transactionID: {
       type: String,
       required: true,
+    },
+    // NEW FIELDS FOR SESSION DETAILS
+    sessionDetails: {
+      hours: Number,
+      speed: String,
+      tier: String,
     },
   },
   {
@@ -49,5 +49,4 @@ const paymentSchema = new mongoose.Schema(
 );
 
 const Payment = mongoose.model("Payment", paymentSchema);
-
 module.exports = Payment;
