@@ -3,8 +3,7 @@ const mongoose = require("mongoose");
 const paymentSchema = new mongoose.Schema(
   {
     userID: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+      type: String,
       required: true,
     },
 
@@ -20,7 +19,7 @@ const paymentSchema = new mongoose.Schema(
 
     resellerID: {
       type: String,
-      required: true,
+      // required: true,
     },
 
     platformFee: {
@@ -34,11 +33,6 @@ const paymentSchema = new mongoose.Schema(
     },
 
     resellerAmount: {
-      type: String,
-      required: true,
-    },
-
-    transactionID: {
       type: String,
       required: true,
     },

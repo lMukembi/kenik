@@ -20,10 +20,11 @@ export const Home = () => {
   const [loading, setLoading] = useState(false);
   // const [messages, setMessages] = useState([]);
   const [duration, setDuration] = useState("");
-  const [userIP, setUserIP] = useState("");
+  // const [userIP, setUserIP] = useState("");
   const [phoneValidation, setPhoneValidation] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
   const [validPhone, setValidPhone] = useState(false);
+  const [mac, setMac] = useState("");
 
   const isValidPhone = (number) => /^(?:07\d{8}|01\d{8})$/.test(number);
 
@@ -43,6 +44,14 @@ export const Home = () => {
   const expireTime = now.toLocaleString();
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const userMac = params.get("mac");
+    if (userMac) {
+      setMac(userMac);
+    }
+  }, []);
 
   useEffect(() => {
     calculateDuration(amount);
@@ -70,23 +79,23 @@ export const Home = () => {
     setDuration(`${days} Days ${hours} Hours`);
   };
 
-  useEffect(() => {
-    axios
-      .get("https://api64.ipify.org?format=json")
-      .then(({ data }) => {
-        setUserIP(data.ip);
+  // useEffect(() => {
+  //   axios
+  //     .get("https://api64.ipify.org?format=json")
+  //     .then(({ data }) => {
+  //       setUserIP(data.ip);
 
-        return axios.post(`${goldwinAPI}/api/user/package`, { ip: data.ip });
-      })
-      .then(({ data }) => {
-        if (data) {
-          return navigate("/");
-        }
-      })
-      .catch((error) => {
-        console.error(error.message);
-      });
-  }, [navigate]);
+  //       return axios.post(`${goldwinAPI}/api/user/package`, { ip: data.ip });
+  //     })
+  //     .then(({ data }) => {
+  //       if (data) {
+  //         return navigate("/");
+  //       }
+  //     })
+  //     .catch((error) => {
+  //       console.error(error.message);
+  //     });
+  // }, [navigate]);
 
   const generateTransactionCode = () => {
     const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -158,12 +167,11 @@ export const Home = () => {
 
     try {
       const res = await axios.post(`${goldwinAPI}/api/payment/deposit`, {
-        ip: userIP,
         amount,
         phone,
-        duration: totalHours,
-        transID: transactionCode,
-        hours: time,
+        username: `KW${Date.now()}`,
+        hours: parseInt(totalHours),
+        mac,
       });
 
       setAmount("");

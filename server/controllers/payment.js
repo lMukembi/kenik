@@ -1,13 +1,11 @@
 const Payment = require("../models/payment");
 const User = require("../models/user");
 const Reseller = require("../models/reseller");
-const Package = require("../models/package");
 const axios = require("axios");
+import { RouterOSAPI } from "routeros-client";
 
 exports.sendstk = async (req, res) => {
-  const { ip, amount, phone, duration, transID, hours } = req.body;
-
-  // const Phone = `0${phone.substring(3)}`;
+  const { ip, amount, phone, hours, username, mac } = req.body;
 
   const data = {
     amount,
@@ -18,89 +16,61 @@ exports.sendstk = async (req, res) => {
     const platformFee = (3 / 100) * amount;
     const resellerAmount = amount - platformFee;
 
-    const resData = await axios.post("https://dns1.boogiecoin.org", data, {
-      headers: {
-        "Content-Type": "application/json",
-        "Api-Secret": "fh4oghxg94",
-      },
-    });
+    const resData = await axios.post(
+      "https://api.nestlink.co.ke/runPrompt",
+      data,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "Api-Secret": "96afae97d3c97ebff534b70b",
+        },
+      }
+    );
+
+    console.log("userDATA:", resData);
 
     if (resData.data.Status === true) {
-      const reseller = await Reseller.findOne({ phone });
-      const user = await User.findOne({ phone });
+      try {
+        const conn = new RouterOSAPI({
+          host: "192.168.88.1",
+          user: "admin",
+          password: "",
+          port: 8728,
+        });
 
-      // const fetchARPTable = () => {
-      //   const exec = require("child_process").exec;
-      //   return new Promise((resolve, reject) => {
-      //     exec("arp -a", (error, stdout) => {
-      //       if (error) return reject(error);
-      //       const arpTable = {};
-      //       stdout.split("\n").forEach((line) => {
-      //         const parts = line.match(
-      //           /(\d+\.\d+\.\d+\.\d+)\s+([a-fA-F0-9:-]+)/
-      //         );
-      //         if (parts) arpTable[parts[1]] = parts[2];
-      //       });
-      //       resolve(arpTable);
-      //     });
-      //   });
-      // };
+        await conn.connect();
 
-      // const arpTable = await fetchARPTable();
-      // const macAddress = arpTable[ip];
-
-      // if (!ip) {
-      //   return res.status(400).json({ message: "IP is required." });
-      // }
-
-      // if (!macAddress) {
-      //   return res.status(400).json({ message: "MAC not found." });
-      // }
-
-      if (reseller) {
-        reseller.balance += resellerAmount;
-        await reseller.save();
+        const addClient = await conn.write("/ip/hotspot/user/add", [
+          `=name=${username}`,
+          `=mac-address=${mac}`,
+          `=limit-uptime=${hours}h`,
+        ]);
+      } catch (error) {
+        console.error(err.message);
+      } finally {
+        conn.close();
       }
 
+      // const reseller = await Reseller.findOne({ phone });
+
+      // if (reseller) {
+      //   reseller.balance += resellerAmount;
+      //   await reseller.save();
+      // }
+
       const transaction = new Payment({
-        userID: user._id,
+        userID: username,
         ip: ip,
-        macAddress: macAddress,
-        resellerID: reseller._id,
+        macAddress: mac,
+        // resellerID: reseller._id,
         amountPaid: amount,
         platformFee: platformFee,
         resellerAmount: resellerAmount,
-        transactionID: transID,
       });
 
-      const package = await Package.findOneAndUpdate(
-        { ip: ip, status: "pending" },
-        {
-          $set: {
-            status: "paid",
-            userID: user._id,
-            expireAt: {
-              type: Date,
-              default: () => new Date(Date.now() + duration * 60 * 60 * 1000),
-              index: { expires: `${hours}h` },
-            },
-          },
-        },
-        { new: true }
-      );
-
-      // const package = new Package({
-      //   userID: user._id,
-      //   ip: ip,
-      //   expireAt: new Date(Date.now() + duration * 60 * 60 * 1000),
-      // });
-
       await transaction.save();
-      await package.save();
 
       res.json({ success: true, message: "Payment successful." });
-
-      return exec("/bin/bash /home/scripts/update_paid_macs.sh");
     } else {
       console.log("Payment Failed");
     }

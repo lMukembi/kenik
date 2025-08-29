@@ -24,7 +24,6 @@ const corsOptions = {
   exposedHeaders: ["Authorization"],
 };
 
-
 app.use(cors(corsOptions));
 
 app.options("*", cors());
@@ -37,6 +36,7 @@ app.use("/api/admin", require("./routes/admin"));
 app.use("/api/user", require("./routes/user"));
 app.use("/api/reseller", require("./routes/reseller"));
 app.use("/api/payment", require("./routes/payment"));
+app.use("/api/mikrotik", require("./routes/mikrotik"));
 
 app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "../client/build", "index.html"));
