@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { IoCallOutline, IoLogoWhatsapp, IoMailOutline } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
 import { toast, Bounce } from "react-toastify";
@@ -21,7 +21,7 @@ export const Home = () => {
   // const [messages, setMessages] = useState([]);
   const [duration, setDuration] = useState("");
   // const [userIP, setUserIP] = useState("");
-  const [phoneValidation, setPhoneValidation] = useState(false);
+  // const [phoneValidation, setPhoneValidation] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
   const [validPhone, setValidPhone] = useState(false);
   const [mac, setMac] = useState("");
@@ -113,21 +113,21 @@ export const Home = () => {
     return code;
   };
 
-  const checkPhone = useCallback(async () => {
-    if (!isValidPhone(phone)) return;
+  // const checkPhone = useCallback(async () => {
+  //   if (!isValidPhone(phone)) return;
 
-    try {
-      const Phone = `254${phone.substring(1)}`;
+  //   try {
+  //     const Phone = `254${phone.substring(1)}`;
 
-      const res = await axios.post(`${goldwinAPI}/api/user/check-phone`, {
-        phone: Phone,
-      });
+  //     const res = await axios.post(`${goldwinAPI}/api/user/check-phone`, {
+  //       phone: Phone,
+  //     });
 
-      setPhoneValidation(res.data ? false : true);
-    } catch (error) {
-      console.log(error.message);
-    }
-  }, [phone]);
+  //     setPhoneValidation(res.data ? false : true);
+  //   } catch (error) {
+  //     console.log(error.message);
+  //   }
+  // }, [phone]);
 
   const handlePackage = async (e) => {
     e.preventDefault();
@@ -262,17 +262,21 @@ export const Home = () => {
   //   getMessages();
   // }, []);
 
+  // useEffect(() => {
+  //   setValidPhone(isValidPhone(phone));
+
+  //   const delayDebounce = setTimeout(() => {
+  //     if (isValidPhone(phone)) {
+  //       checkPhone();
+  //     }
+  //   }, 500);
+
+  //   return () => clearTimeout(delayDebounce);
+  // }, [phone, checkPhone]);
+
   useEffect(() => {
     setValidPhone(isValidPhone(phone));
-
-    const delayDebounce = setTimeout(() => {
-      if (isValidPhone(phone)) {
-        checkPhone();
-      }
-    }, 500);
-
-    return () => clearTimeout(delayDebounce);
-  }, [phone, checkPhone]);
+  }, [phone]);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -327,7 +331,7 @@ export const Home = () => {
             value={phone}
             onFocus={() => {
               setIsFocused(true);
-              checkPhone();
+              // checkPhone();
             }}
           />
         )}
@@ -338,7 +342,6 @@ export const Home = () => {
             amount < 5 ||
             !isFocused ||
             !phone ||
-            phoneValidation === false ||
             phone.length !== 10 ||
             !validPhone
           }

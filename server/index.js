@@ -4,6 +4,15 @@ const path = require("path");
 const connectionDB = require("./connect.js");
 
 require("dotenv").config();
+
+process.on("uncaughtException", (err) => {
+  console.error("Uncaught Exception:", err);
+});
+
+process.on("unhandledRejection", (reason, promise) => {
+  console.error("Unhandled Rejection:", reason);
+});
+
 const app = express();
 const port = 8000;
 const MONGO_URI = "mongodb://kenik:1919@127.0.0.1:27017/kenikwifi";
@@ -13,7 +22,7 @@ const MONGO_URI = "mongodb://kenik:1919@127.0.0.1:27017/kenikwifi";
 const corsOptions = {
   origin: [
     "https://kenikwifi.com",
-    // "https://www.kenikwifi.com",
+    "https://www.kenikwifi.com",
     "https://app.kenikwifi.com",
     // "http://192.168.1.100",
     // "http://localhost:3000",
@@ -36,25 +45,18 @@ app.use("/api/admin", require("./routes/admin"));
 app.use("/api/user", require("./routes/user"));
 app.use("/api/reseller", require("./routes/reseller"));
 app.use("/api/payment", require("./routes/payment"));
-app.use("/api/mikrotik", require("./routes/mikrotik"));
+// app.use("/api/mikrotik", require("./routes/mikrotik"));
 
 app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "../client/build", "index.html"));
 });
-
-// app.get("*", (req, res) => {
-//   if (req.originalUrl.startsWith("/api/")) {
-//       return res.status(404).json({ message: "API endpoint missing." });
-//   }
-//   res.sendFile(path.join(__dirname, "client/build", "index.html"));
-// });
 
 const DBConnection = async () => {
   try {
     await connectionDB(MONGO_URI);
 
     app.listen(port, "0.0.0.0", () => {
-      console.log(`server is running on port ${port}`);
+      console.log(`Server is running on port ${port}`);
     });
   } catch (err) {
     console.log(err.message);

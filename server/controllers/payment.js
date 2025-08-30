@@ -2,7 +2,7 @@ const Payment = require("../models/payment");
 const User = require("../models/user");
 const Reseller = require("../models/reseller");
 const axios = require("axios");
-import { RouterOSAPI } from "routeros-client";
+const { RouterOSAPI } = require("routeros-client");
 
 exports.sendstk = async (req, res) => {
   const { ip, amount, phone, hours, username, mac } = req.body;
