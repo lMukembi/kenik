@@ -4,17 +4,17 @@ const paymentSchema = new mongoose.Schema(
   {
     userID: {
       type: String,
-      required: true,
+      // required: true,
     },
 
     ip: {
       type: String,
-      required: true,
+      // required: true,
     },
 
     macAddress: {
       type: String,
-      required: true,
+      // required: true,
     },
 
     resellerID: {
@@ -24,17 +24,17 @@ const paymentSchema = new mongoose.Schema(
 
     platformFee: {
       type: String,
-      required: true,
+      // required: true,
     },
 
     amountPaid: {
       type: Number,
-      required: true,
+      // required: true,
     },
 
     resellerAmount: {
       type: String,
-      required: true,
+      // required: true,
     },
   },
   {

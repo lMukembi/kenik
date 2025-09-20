@@ -7,8 +7,8 @@ import Logo from "../assets/images/Logo.png";
 import "../css/resetPassword.css";
 import axios from "axios";
 
-const goldwinAPI = "https://app.kenikwifi.com";
-// const goldwinAPI = "http://localhost:8000";
+const kenikAPI = "https://app.kenikwifi.com";
+// const kenikAPI = "http://localhost:8000";
 
 export const ResetPassword = () => {
   const [password, setPassword] = useState("");
@@ -26,7 +26,7 @@ export const ResetPassword = () => {
 
     try {
       const res = await axios.put(
-        `${goldwinAPI}/api/user/reset-password/${token}`,
+        `${kenikAPI}/api/user/reset-password/${token}`,
         {
           password,
         }

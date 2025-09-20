@@ -5,33 +5,22 @@ import { toast, Bounce } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "../css/home.css";
 import axios from "axios";
-// import { IoIosCloseCircle, IoMdCheckmarkCircle } from "react-icons/io";
 
-const goldwinAPI = "https://app.kenikwifi.com";
-// const goldwinAPI = "http://localhost:8000";
-// const routerIP = "https://192.168.1.100";
+const kenikAPI = "https://app.kenikwifi.com";
+// const kenikAPI = "http://localhost:8000";
 
 export const Home = () => {
-  // const userData = JSON.parse(localStorage.getItem("JSUD"));
-
-  // const [userInfo, setUserInfo] = useState({});
   const [phone, setPhone] = useState("");
   const [amount, setAmount] = useState("");
   const [loading, setLoading] = useState(false);
-  // const [messages, setMessages] = useState([]);
   const [duration, setDuration] = useState("");
-  // const [userIP, setUserIP] = useState("");
-  // const [phoneValidation, setPhoneValidation] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
   const [validPhone, setValidPhone] = useState(false);
   const [mac, setMac] = useState("");
 
   const isValidPhone = (number) => /^(?:07\d{8}|01\d{8})$/.test(number);
 
-  // const validField = <IoMdCheckmarkCircle />;
-  // const invalidField = <IoIosCloseCircle />;
-
-  const pricePerDay = 24;
+  const pricePerDay = 67;
   const hoursPerDay = 24;
 
   const currentDateTime = new Date().toLocaleString();
@@ -85,7 +74,7 @@ export const Home = () => {
   //     .then(({ data }) => {
   //       setUserIP(data.ip);
 
-  //       return axios.post(`${goldwinAPI}/api/user/package`, { ip: data.ip });
+  //       return axios.post(`${kenikAPI}/api/user/package`, { ip: data.ip });
   //     })
   //     .then(({ data }) => {
   //       if (data) {
@@ -113,27 +102,11 @@ export const Home = () => {
     return code;
   };
 
-  // const checkPhone = useCallback(async () => {
-  //   if (!isValidPhone(phone)) return;
-
-  //   try {
-  //     const Phone = `254${phone.substring(1)}`;
-
-  //     const res = await axios.post(`${goldwinAPI}/api/user/check-phone`, {
-  //       phone: Phone,
-  //     });
-
-  //     setPhoneValidation(res.data ? false : true);
-  //   } catch (error) {
-  //     console.log(error.message);
-  //   }
-  // }, [phone]);
-
   const handlePackage = async (e) => {
     e.preventDefault();
 
-    if (!amount || amount < 5) {
-      toast.warn("Please enter at least 5 KES.", {
+    if (!amount || amount < 1) {
+      toast.warn("Please enter at least 1 KES.", {
         position: "top-right",
         autoClose: 4000,
         hideProgressBar: false,
@@ -164,17 +137,21 @@ export const Home = () => {
     });
 
     setLoading(true);
+    console.log("stkpush!");
 
     try {
-      const res = await axios.post(`${goldwinAPI}/api/payment/deposit`, {
+      const res = await axios.post(`${kenikAPI}/api/payment/deposit`, {
         amount,
         phone,
-        username: `KW${Date.now()}`,
-        hours: parseInt(totalHours),
-        mac,
+        // username: `KW${Date.now()}`,
+        // hours: parseInt(totalHours),
+        // mac,
       });
 
       setAmount("");
+      setPhone("");
+
+      console.log("stksent!");
 
       if (res.data.data.Status === true) {
         toast.success(
@@ -226,7 +203,7 @@ export const Home = () => {
   //       const userID = userInfoData.SESSID;
 
   //       const res = await axios.get(
-  //         `${goldwinAPI}/api/user/${userID}/user-data`
+  //         `${kenikAPI}/api/user/${userID}/user-data`
   //       );
   //       if (res) {
   //         setUserInfo(res.data);
@@ -238,41 +215,6 @@ export const Home = () => {
 
   //   getUserData();
   // }, []);
-
-  // useEffect(() => {
-  //   const getMessages = async () => {
-  //     try {
-  //       const userInfoData = JSON.parse(localStorage.getItem("JSUD"));
-  //       if (!userInfoData) {
-  //         return redirect("/login");
-  //       }
-  //       const userID = userInfoData.SESSID;
-
-  //       const res = await axios.get(
-  //         `${goldwinAPI}/api/payment/${userID}/messages`
-  //       );
-  //       if (res.data) {
-  //         setMessages(res.data);
-  //       }
-  //     } catch (err) {
-  //       console.log(err.message);
-  //     }
-  //   };
-
-  //   getMessages();
-  // }, []);
-
-  // useEffect(() => {
-  //   setValidPhone(isValidPhone(phone));
-
-  //   const delayDebounce = setTimeout(() => {
-  //     if (isValidPhone(phone)) {
-  //       checkPhone();
-  //     }
-  //   }, 500);
-
-  //   return () => clearTimeout(delayDebounce);
-  // }, [phone, checkPhone]);
 
   useEffect(() => {
     setValidPhone(isValidPhone(phone));
@@ -301,13 +243,13 @@ export const Home = () => {
           type="number"
           name="amount"
           required
-          placeholder="Enter at least 5 KES"
+          placeholder="Enter at least 1 KES"
           autoComplete="off"
           onChange={(e) => setAmount(e.target.value)}
         />
 
         <div className="duration">
-          {amount >= 5 && duration && (
+          {amount >= 1 && duration && (
             <>
               <small>
                 Valid:<span> {duration}</span>
@@ -319,7 +261,7 @@ export const Home = () => {
           )}
         </div>
 
-        {amount && amount >= 5 && (
+        {amount && amount >= 1 && (
           <input
             type="tel"
             maxLength={10}
@@ -331,7 +273,6 @@ export const Home = () => {
             value={phone}
             onFocus={() => {
               setIsFocused(true);
-              // checkPhone();
             }}
           />
         )}
@@ -339,7 +280,7 @@ export const Home = () => {
         <button
           disabled={
             loading ||
-            amount < 5 ||
+            amount < 1 ||
             !isFocused ||
             !phone ||
             phone.length !== 10 ||

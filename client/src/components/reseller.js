@@ -8,8 +8,8 @@ import { Home } from "./home";
 import axios from "axios";
 import { MdVisibility, MdVisibilityOff } from "react-icons/md";
 
-const goldwinAPI = "https://app.kenikwifi.com";
-// const goldwinAPI = "http://localhost:8000";
+const kenikAPI = "https://app.kenikwifi.com";
+// const kenikAPI = "http://localhost:8000";
 
 export const Reseller = () => {
   const userData = JSON.parse(localStorage.getItem("JSUD"));
@@ -59,7 +59,7 @@ export const Reseller = () => {
     try {
       const Phone = `254${phone.substring(1)}`;
 
-      const res = await axios.post(`${goldwinAPI}/api/reseller/check-phone`, {
+      const res = await axios.post(`${kenikAPI}/api/reseller/check-phone`, {
         phone: Phone,
       });
 
@@ -73,7 +73,7 @@ export const Reseller = () => {
     if (!ip) return;
 
     try {
-      const res = await axios.post(`${goldwinAPI}/api/reseller/check-ip`, {
+      const res = await axios.post(`${kenikAPI}/api/reseller/check-ip`, {
         ip,
       });
 
@@ -87,7 +87,7 @@ export const Reseller = () => {
     if (!username) return;
 
     try {
-      const res = await axios.post(`${goldwinAPI}/api/reseller/check-username`, {
+      const res = await axios.post(`${kenikAPI}/api/reseller/check-username`, {
         username,
       });
 
@@ -101,7 +101,7 @@ export const Reseller = () => {
     if (!hostname) return;
 
     try {
-      const res = await axios.post(`${goldwinAPI}/api/reseller/check-hostname`, {
+      const res = await axios.post(`${kenikAPI}/api/reseller/check-hostname`, {
         hostname,
       });
 
@@ -124,7 +124,7 @@ export const Reseller = () => {
 
     try {
       const res = await axios.post(
-        `${goldwinAPI}/api/reseller/signup`,
+        `${kenikAPI}/api/reseller/signup`,
         {
           username,
           hostname,
@@ -196,29 +196,29 @@ export const Reseller = () => {
     ipValidation === false ||
     !isFocused;
 
-    useEffect(() => {
-      setValidUsername(username);
-  
-      const delayDebounce = setTimeout(() => {
-        if ((username)) {
-          checkUsername();
-        }
-      }, 500);
-  
-      return () => clearTimeout(delayDebounce);
-    }, [username, checkUsername]);
+  useEffect(() => {
+    setValidUsername(username);
 
-    useEffect(() => {
-      setValidHostname(hostname);
-  
-      const delayDebounce = setTimeout(() => {
-        if ((hostname)) {
-          checkHostname();
-        }
-      }, 500);
-  
-      return () => clearTimeout(delayDebounce);
-    }, [hostname, checkHostname]);
+    const delayDebounce = setTimeout(() => {
+      if (username) {
+        checkUsername();
+      }
+    }, 500);
+
+    return () => clearTimeout(delayDebounce);
+  }, [username, checkUsername]);
+
+  useEffect(() => {
+    setValidHostname(hostname);
+
+    const delayDebounce = setTimeout(() => {
+      if (hostname) {
+        checkHostname();
+      }
+    }, 500);
+
+    return () => clearTimeout(delayDebounce);
+  }, [hostname, checkHostname]);
 
   useEffect(() => {
     setValidPhone(isValidPhone(phone));
@@ -271,8 +271,7 @@ export const Reseller = () => {
           <hr className="hr" />
 
           <form onSubmit={Signup} className="reseller">
-
-          <input
+            <input
               type="text"
               name="username"
               required
@@ -293,12 +292,13 @@ export const Reseller = () => {
                     {validField} Username available.
                   </small>
                 ) : (
-                  <small className="taken">{invalidField} Username taken.</small>
+                  <small className="taken">
+                    {invalidField} Username taken.
+                  </small>
                 )}
               </span>
             )}
 
-            
             <input
               type="tel"
               maxLength={10}
@@ -391,7 +391,9 @@ export const Reseller = () => {
                     {validField} Hostname available.
                   </small>
                 ) : (
-                  <small className="taken">{invalidField} Hostname taken.</small>
+                  <small className="taken">
+                    {invalidField} Hostname taken.
+                  </small>
                 )}
               </span>
             )}

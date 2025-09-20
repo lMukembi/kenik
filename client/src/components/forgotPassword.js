@@ -6,8 +6,8 @@ import "../styles/forgotPassword.css";
 import axios from "axios";
 import { IoIosCloseCircle, IoMdCheckmarkCircle } from "react-icons/io";
 
-const goldwinAPI = "https://app.kenikwifi.com";
-// const goldwinAPI = "http://localhost:8000";
+const kenikAPI = "https://app.kenikwifi.com";
+// const kenikAPI = "http://localhost:8000";
 
 const isValidPhone = (number) => /^(?:07\d{8}|01\d{8})$/.test(number);
 
@@ -26,7 +26,7 @@ export const ForgotPassword = () => {
     try {
       const Phone = `254${phone.substring(1)}`;
 
-      const res = await axios.post(`${goldwinAPI}/api/user/check-phone`, {
+      const res = await axios.post(`${kenikAPI}/api/user/check-phone`, {
         phone: Phone,
       });
 
@@ -62,7 +62,7 @@ export const ForgotPassword = () => {
     e.preventDefault();
 
     try {
-      return await axios.post(`${goldwinAPI}/api/user/reset-password`, {
+      return await axios.post(`${kenikAPI}/api/user/reset-password`, {
         phone,
       });
     } catch (error) {

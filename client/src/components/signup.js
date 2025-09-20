@@ -8,8 +8,8 @@ import { Home } from "./home";
 import axios from "axios";
 import { MdVisibility, MdVisibilityOff } from "react-icons/md";
 
-const goldwinAPI = "https://app.kenikwifi.com";
-// const goldwinAPI = "http://localhost:8000";
+const kenikAPI = "https://app.kenikwifi.com";
+// const kenikAPI = "http://localhost:8000";
 
 export const Signup = () => {
   const userData = JSON.parse(localStorage.getItem("JSUD"));
@@ -49,7 +49,7 @@ export const Signup = () => {
     try {
       const Phone = `254${phone.substring(1)}`;
 
-      const res = await axios.post(`${goldwinAPI}/api/user/check-phone`, {
+      const res = await axios.post(`${kenikAPI}/api/user/check-phone`, {
         phone: Phone,
       });
 
@@ -72,7 +72,7 @@ export const Signup = () => {
 
     try {
       const res = await axios.post(
-        `${goldwinAPI}/api/user/signup`,
+        `${kenikAPI}/api/user/signup`,
         {
           phone: `254${phone.substring(1)}`,
           password,

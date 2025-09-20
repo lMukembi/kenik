@@ -7,8 +7,8 @@ import { Home } from "./home";
 import "../css/login.css";
 import axios from "axios";
 
-const goldwinAPI = "https://app.kenikwifi.com";
-// const goldwinAPI = "http://localhost:8000";
+const kenikAPI = "https://app.kenikwifi.com";
+// const kenikAPI = "http://localhost:8000";
 
 export const Login = () => {
   const userData = JSON.parse(localStorage.getItem("JSUD"));
@@ -32,7 +32,7 @@ export const Login = () => {
     };
     try {
       const res = await axios.post(
-        `${goldwinAPI}/api/user/login`,
+        `${kenikAPI}/api/user/login`,
         {
           phone,
           password,
