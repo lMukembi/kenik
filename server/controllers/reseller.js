@@ -1,14 +1,14 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const mongoose = require("mongoose");
-const crypto = require('crypto');
+const crypto = require("crypto");
 const Reseller = require("../models/reseller");
 const User = require("../models/user");
 
 exports.signup = async (req, res) => {
   const { username, hostname, brand, ip, password, phone } = req.body;
 
-  const randomID = crypto.randomBytes(16).toString('hex');
+  const randomID = crypto.randomBytes(16).toString("hex");
 
   const JWT_SECRET =
     "S3bwFeWy4VRrFDQ3r0vDircfvsAH3k7AIwg4DVCm8VhTfI/w8YHF3M0ZG+gCkbWwS1xYj1bVl8liAuETKkElGg==";
@@ -134,7 +134,6 @@ exports.hostnameCheck = async (req, res) => {
     });
   }
 };
-
 
 exports.passwordCheck = async (req, res) => {
   const { phone, password } = req.body;
@@ -392,11 +391,11 @@ exports.getMACs = async (req, res) => {
       return res.status(400).json({ error: "No MAC addresses found." });
     }
 
-    // const res = await axios.post("https://app.kenikwifi.com/api/storeMACs", { id, mac_addresses: macs });
-    const res = await axios.post(
-      "https://app.kenikwifi.com/api/storeMACs",
-      { id, mac_addresses: macs }
-    );
+    // const res = await axios.post("https://api.kenikwifi.com/api/storeMACs", { id, mac_addresses: macs });
+    const res = await axios.post("https://api.kenikwifi.com/api/storeMACs", {
+      id,
+      mac_addresses: macs,
+    });
 
     res.json({ data: res.data });
   } catch (error) {
@@ -430,9 +429,13 @@ exports.updateRouterMACs = async () => {
     const mac = user.mac;
 
     try {
-      await axios.post(`http://${ip}${macWhitelistURL}`, { mac }, {
-        auth: { username: username, password: password },
-      });
+      await axios.post(
+        `http://${ip}${macWhitelistURL}`,
+        { mac },
+        {
+          auth: { username: username, password: password },
+        }
+      );
       console.log(`MAC ${mac} whitelisted on ${ip}.`);
     } catch (err) {
       console.error(err.message);
@@ -441,7 +444,6 @@ exports.updateRouterMACs = async () => {
 };
 // Run every 5 seconds
 setInterval(exports.updateRouterMACs, 5000);
-
 
 exports.getCredentials = async (req, res) => {
   const { mac_address } = req.query;

@@ -6,7 +6,7 @@ import "../styles/forgotPassword.css";
 import axios from "axios";
 import { IoIosCloseCircle, IoMdCheckmarkCircle } from "react-icons/io";
 
-const kenikAPI = "https://app.kenikwifi.com";
+const kenikAPI = "https://api.kenikwifi.com";
 // const kenikAPI = "http://localhost:8000";
 
 const isValidPhone = (number) => /^(?:07\d{8}|01\d{8})$/.test(number);

@@ -8,7 +8,7 @@ import { Home } from "./home";
 import axios from "axios";
 import { MdVisibility, MdVisibilityOff } from "react-icons/md";
 
-const kenikAPI = "https://app.kenikwifi.com";
+const kenikAPI = "https://api.kenikwifi.com";
 // const kenikAPI = "http://localhost:8000";
 
 export const Signup = () => {

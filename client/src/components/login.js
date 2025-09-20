@@ -7,7 +7,7 @@ import { Home } from "./home";
 import "../css/login.css";
 import axios from "axios";
 
-const kenikAPI = "https://app.kenikwifi.com";
+const kenikAPI = "https://api.kenikwifi.com";
 // const kenikAPI = "http://localhost:8000";
 
 export const Login = () => {

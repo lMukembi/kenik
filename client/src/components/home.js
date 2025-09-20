@@ -6,7 +6,7 @@ import "react-toastify/dist/ReactToastify.css";
 import "../css/home.css";
 import axios from "axios";
 
-const kenikAPI = "https://app.kenikwifi.com";
+const kenikAPI = "https://api.kenikwifi.com";
 // const kenikAPI = "http://localhost:8000";
 
 export const Home = () => {
