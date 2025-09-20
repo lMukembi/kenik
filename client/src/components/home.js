@@ -145,7 +145,7 @@ export const Home = () => {
         phone,
         // username: `KW${Date.now()}`,
         // hours: parseInt(totalHours),
-        // mac,
+        mac,
       });
 
       setAmount("");
