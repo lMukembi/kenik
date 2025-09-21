@@ -13,7 +13,7 @@ class MikroTikRestClient {
   constructor() {
     // The baseURL MUST use https:// to connect to the 'www-ssl' service you enabled.
     this.baseURL = `https://${
-      process.env.MIKROTIK_HOST || "7bcc06558c0a.sn.mynetname.net"
+      process.env.MIKROTIK_HOST || "7bcc06558c0a.sn.mynetname.net:8443"
     }/rest`;
 
     // The username ('api_user') and password are used here for Basic Authentication.
