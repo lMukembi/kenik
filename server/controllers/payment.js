@@ -90,7 +90,7 @@ class MikroTikRestClient {
             profile: "default",
             comment: `Purchased on ${new Date().toISOString()}`,
           });
-          console.log("Added user to hotspot");
+          console.log("Added user to hotspot!");
         } catch (error) {
           console.log(error);
         }
