@@ -13,13 +13,13 @@ class MikroTikRestClient {
   constructor() {
     // The baseURL MUST use https:// to connect to the 'www-ssl' service you enabled.
     this.baseURL = `https://${
-      process.env.MIKROTIK_HOST || "192.168.88.1"
+      process.env.MIKROTIK_HOST || "7bcc06558c0a.sn.mynetname.net"
     }/rest`;
 
     // The username ('api_user') and password are used here for Basic Authentication.
     const auth = Buffer.from(
-      `${process.env.MIKROTIK_USER || "api_user"}:${
-        process.env.MIKROTIK_PASS || "YourSuperStrongPasswordHere"
+      `${process.env.MIKROTIK_USER || "api-user"}:${
+        process.env.MIKROTIK_PASS || "Kenikwifi@1919"
       }`
     ).toString("base64");
 
@@ -82,13 +82,18 @@ class MikroTikRestClient {
       } else {
         // New user, so we create them with a POST request.
         console.log(`Creating new user ${username} for ${timeLimit}.`);
-        await this.api.post("/ip/hotspot/user", {
-          name: username,
-          "mac-address": mac,
-          "limit-uptime": timeLimit,
-          profile: "default",
-          comment: `Purchased on ${new Date().toISOString()}`,
-        });
+        try {
+          await this.api.post("/ip/hotspot/user", {
+            name: username,
+            "mac-address": mac,
+            "limit-uptime": timeLimit,
+            profile: "default",
+            comment: `Purchased on ${new Date().toISOString()}`,
+          });
+          console.log("Added user to hotspot");
+        } catch (error) {
+          console.log(error);
+        }
       }
       return { success: true };
     } catch (error) {
@@ -112,12 +117,10 @@ exports.sendstk = async (req, res) => {
   const { amount, phone, mac, ip } = req.body;
 
   if (!amount || !phone || !mac) {
-    return res
-      .status(400)
-      .json({
-        success: false,
-        message: "Amount, phone, and MAC address are required.",
-      });
+    return res.status(400).json({
+      success: false,
+      message: "Amount, phone, and MAC address are required.",
+    });
   }
 
   const numericAmount = Number(amount);
@@ -162,14 +165,12 @@ exports.sendstk = async (req, res) => {
 
   if (!mikrotikResult.success) {
     // If the router fails, we inform the user. The payment was still processed.
-    return res
-      .status(500)
-      .json({
-        success: false,
-        message:
-          "Payment successful, but failed to activate internet. Please contact support.",
-        details: mikrotikResult.error,
-      });
+    return res.status(500).json({
+      success: false,
+      message:
+        "Payment successful, but failed to activate internet. Please contact support.",
+      details: mikrotikResult.error,
+    });
   }
 
   // 5. LOG THE TRANSACTION TO THE DATABASE
